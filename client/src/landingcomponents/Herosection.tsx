@@ -17,10 +17,64 @@ const letterVariants = {
 const words = ['Your', 'music,']
 const gradientWords = ['everywhere.']
 
-export default function HeroSection() {
+type AnalyticsStats = {
+  totalVisits?: number
+  totalListeners?: number
+  totalUsers?: number
+  totalSongs?: number
+  totalAlbums?: number
+}
+
+const pluralize = (count: number, singular: string, plural = `${singular}s`) => (
+  `${count} ${count === 1 ? singular : plural}`
+)
+
+const getLiveStatCopy = (stats: AnalyticsStats | null, loading: boolean) => {
+  if (loading) {
+    return {
+      primary: 'Growing listener community',
+      secondary: 'Fetching live app stats',
+    }
+  }
+
+  if (!stats) {
+    return {
+      primary: 'Built for smooth music discovery',
+      secondary: 'No personal tracking, just aggregate app metrics',
+    }
+  }
+
+  const totalVisits = Number(stats.totalVisits) || 0
+  const totalSongs = Number(stats.totalSongs) || 0
+  const totalAlbums = Number(stats.totalAlbums) || 0
+
+  let primary = 'Built for smooth music discovery'
+
+  if (totalVisits >= 100) {
+    primary = `${Math.floor(totalVisits / 100) * 100}+ visits since launch`
+  } else if (totalVisits >= 10) {
+    primary = `${Math.floor(totalVisits / 10) * 10}+ visits since launch`
+  } else if (totalSongs > 0) {
+    primary = `${pluralize(totalSongs, 'track')} available`
+  } else if (totalVisits > 0) {
+    primary = 'New listeners joining soon'
+  }
+
+  let secondary = 'Live aggregate stats, no personal tracking'
+  if (totalSongs > 0 && !primary.includes('track')) {
+    secondary = `${pluralize(totalSongs, 'track')} available`
+  } else if (totalAlbums > 0) {
+    secondary = `${pluralize(totalAlbums, 'album')} in the catalog`
+  }
+
+  return { primary, secondary }
+}
+
+export default function HeroSection({ analyticsStats = null, analyticsLoading = false }: { analyticsStats?: AnalyticsStats | null, analyticsLoading?: boolean }) {
   const navigate = useNavigate()
   const ref = useRef<HTMLElement>(null)
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
+  const liveStat = getLiveStatCopy(analyticsStats, analyticsLoading)
 
   // Scroll-linked transforms
   const y = useTransform(scrollYProgress, [0, 1], [0, 180])
@@ -168,13 +222,19 @@ export default function HeroSection() {
             transition={{ delay: 0.65, duration: 0.7 }}
             className="flex items-center gap-4"
           >
-            <AvatarStack />
+            <div
+              className="flex h-10 w-10 items-center justify-center rounded-full"
+              style={{ background: 'var(--accent-soft)', color: 'var(--accent)' }}
+              aria-hidden="true"
+            >
+              <SvgIcon name="music" size={18} />
+            </div>
             <div>
-              <div className="flex gap-0.5 mb-0.5">
-                {[...Array(5)].map((_, i) => <StarIcon key={i} />)}
-              </div>
               <p className="text-sm" style={{ color: 'var(--text-2)' }}>
-                <strong style={{ color: 'var(--text)' }}>2,400+</strong> listeners since beta
+                <strong style={{ color: 'var(--text)' }}>{liveStat.primary}</strong>
+              </p>
+              <p className="text-xs" style={{ color: 'var(--text-3)' }}>
+                {liveStat.secondary}
               </p>
             </div>
           </motion.div>
@@ -238,18 +298,3 @@ function MagneticButton({ children }: { children: React.ReactNode }) {
   )
 }
 
-function AvatarStack() {
-  const colors = ['#ff5c35', '#f0a500', '#3f88c5', '#43316b']
-  return (
-    <div className="flex -space-x-2">
-      {colors.map((c, i) => (
-        <div key={i} className="w-8 h-8 border-2 border-white rounded-full"
-          style={{ background: `radial-gradient(circle at 30% 30%, ${c}cc, ${c})`, zIndex: colors.length - i }} />
-      ))}
-    </div>
-  )
-}
-
-function StarIcon() {
-  return <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--accent-2)"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-}

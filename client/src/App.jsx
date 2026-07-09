@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import MainLayout from './components/MainLayout'
+import MobileOnboarding from './components/MobileOnboarding'
 import AddSong from './pages/AddSong'
 import Home from './pages/Home'
 import Library from './pages/Library'
@@ -26,9 +27,26 @@ import Privacy from './pages/Privacy'
 import Terms from './pages/Terms'
 import CookiePolicy from './pages/CookiePolicy'
 
+const ONBOARDING_STORAGE_KEY = 'symponify_onboarding_seen'
+const MOBILE_ONBOARDING_QUERY = '(max-width: 1023px)'
+
+const hasSeenOnboarding = () => {
+  try {
+    return localStorage.getItem(ONBOARDING_STORAGE_KEY) === 'true'
+  } catch {
+    return false
+  }
+}
+
+const getShouldUseMobileOnboarding = () => (
+  typeof window !== 'undefined' && window.matchMedia(MOBILE_ONBOARDING_QUERY).matches
+)
+
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(Boolean(localStorage.getItem('token')))
   const [isGuest, setIsGuest] = useState(localStorage.getItem('guestAccess') === 'true')
+  const [isMobileOnboardingViewport, setIsMobileOnboardingViewport] = useState(getShouldUseMobileOnboarding)
+  const [showOnboarding, setShowOnboarding] = useState(() => getShouldUseMobileOnboarding() && !hasSeenOnboarding())
   const [isAdmin, setIsAdmin] = useState(() => {
     try {
       return Boolean(JSON.parse(localStorage.getItem('user') || 'null')?.isAdmin)
@@ -57,7 +75,35 @@ function App() {
     }
   }, [])
 
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(MOBILE_ONBOARDING_QUERY)
+
+    const syncViewport = () => {
+      const isMobileViewport = mediaQuery.matches
+      setIsMobileOnboardingViewport(isMobileViewport)
+      setShowOnboarding(isMobileViewport && !hasSeenOnboarding())
+    }
+
+    syncViewport()
+    mediaQuery.addEventListener('change', syncViewport)
+
+    return () => mediaQuery.removeEventListener('change', syncViewport)
+  }, [])
+
+  const completeOnboarding = () => {
+    try {
+      localStorage.setItem(ONBOARDING_STORAGE_KEY, 'true')
+    } catch {
+      // If storage is unavailable, let the current session continue.
+    }
+    setShowOnboarding(false)
+  }
+
   const canAccessApp = isLoggedIn || isGuest
+
+  if (isMobileOnboardingViewport && showOnboarding) {
+    return <MobileOnboarding onComplete={completeOnboarding} />
+  }
 
   return (
     <Routes>

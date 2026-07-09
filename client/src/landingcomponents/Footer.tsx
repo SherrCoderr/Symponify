@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { AnimatePresence, motion } from 'framer-motion'
 import Waveform from './Waveform'
+import useViewport from '../hooks/useViewport'
 
 const links = {
   Product: [
@@ -28,10 +30,27 @@ const links = {
   ]
 }
 
+const mobileLinks = {
+  Product: [
+    { label: 'Features', path: '/features' },
+    { label: 'Roadmap', path: '/roadmap' },
+  ],
+  Company: [
+    { label: 'About', path: '/about' },
+    { label: 'Contact', path: '/contact' },
+  ],
+  Legal: [
+    { label: 'Privacy', path: '/privacy' },
+    { label: 'Terms', path: '/terms' },
+  ],
+}
+
 export default function Footer() {
   const navigate = useNavigate()
+  const { isTabletOrBelow } = useViewport()
   const [feedback, setFeedback] = useState({ name: '', email: '', description: '' })
   const [status, setStatus] = useState({ loading: false, success: false, error: '' })
+  const [openSection, setOpenSection] = useState('Product')
 
   const handleNavigation = (path, external) => {
     if (external) {
@@ -75,6 +94,92 @@ export default function Footer() {
     } catch (err) {
       setStatus({ loading: false, success: false, error: err.message })
     }
+  }
+
+  if (isTabletOrBelow) {
+    return (
+      <footer
+        id="footer"
+        className="landing-reveal px-4 py-8"
+        style={{ borderTop: '1px solid var(--line)', background: 'var(--bg)' }}
+      >
+        <div className="mx-auto w-full max-w-xl">
+          <button
+            type="button"
+            onClick={() => navigate('/')}
+            className="mb-3 flex min-h-11 items-center gap-2.5 text-left transition-opacity hover:opacity-70"
+          >
+            <span
+              className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full"
+              style={{ background: 'linear-gradient(135deg, var(--accent), var(--accent-2))' }}
+            >
+              <WaveIcon />
+            </span>
+            <span style={{ fontFamily: 'var(--serif)', fontSize: '24px', color: 'var(--text)' }}>Symponify</span>
+          </button>
+
+          <p className="mb-5 text-sm leading-6" style={{ color: 'var(--text-2)' }}>
+            A smooth music experience for every listener.
+          </p>
+
+          <div className="overflow-hidden rounded-2xl border" style={{ borderColor: 'var(--line)', background: 'rgba(255,255,255,0.58)' }}>
+            {Object.entries(mobileLinks).map(([category, items], index) => {
+              const isOpen = openSection === category
+
+              return (
+                <div key={category} style={{ borderTop: index === 0 ? 'none' : '1px solid var(--line)' }}>
+                  <button
+                    type="button"
+                    className="flex min-h-12 w-full items-center justify-between px-4 py-3 text-left text-sm font-bold"
+                    style={{ color: 'var(--text)' }}
+                    aria-expanded={isOpen}
+                    onClick={() => setOpenSection(isOpen ? '' : category)}
+                  >
+                    {category}
+                    <span
+                      aria-hidden="true"
+                      className="text-lg leading-none transition-transform duration-200"
+                      style={{ color: 'var(--text-3)', transform: isOpen ? 'rotate(45deg)' : 'rotate(0deg)' }}
+                    >
+                      +
+                    </span>
+                  </button>
+
+                  <AnimatePresence initial={false}>
+                    {isOpen ? (
+                      <motion.ul
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                        className="overflow-hidden px-4 pb-3"
+                      >
+                        {items.map((item) => (
+                          <li key={item.label}>
+                            <button
+                              type="button"
+                              onClick={() => handleNavigation(item.path, item.external)}
+                              className="min-h-10 py-1 text-left text-sm transition-opacity hover:opacity-70"
+                              style={{ color: 'var(--text-2)' }}
+                            >
+                              {item.label}
+                            </button>
+                          </li>
+                        ))}
+                      </motion.ul>
+                    ) : null}
+                  </AnimatePresence>
+                </div>
+              )
+            })}
+          </div>
+
+          <p className="mt-5 text-xs leading-5" style={{ color: 'var(--text-3)' }}>
+            © 2026 Symponify. Built with care.
+          </p>
+        </div>
+      </footer>
+    )
   }
 
   return (

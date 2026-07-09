@@ -65,14 +65,14 @@ const Toast = ({ id, message, type = 'default', onClose }) => {
       initial="initial"
       animate="animate"
       exit="exit"
-      className={`${style.bg} ${style.border} ${style.text} border rounded-lg px-4 py-3 flex items-center gap-3 shadow-lg max-w-md`}
+      className={`${style.bg} ${style.border} ${style.text} border rounded-lg px-4 py-3 flex items-center gap-3 shadow-lg w-full max-w-md`}
       role="status"
       aria-live="polite"
     >
       <span className={`${style.iconColor} font-bold text-sm flex-shrink-0`}>
         {style.icon}
       </span>
-      <p className="text-sm font-medium flex-1">{message}</p>
+      <p className="text-sm font-medium flex-1 min-w-0 break-words">{message}</p>
       <button
         onClick={() => onClose(id)}
         className={`${style.iconColor} hover:opacity-70 flex-shrink-0`}
@@ -89,7 +89,7 @@ export const ToastContainer = () => {
 
   return (
     <div
-      className="fixed top-4 right-4 z-50 flex flex-col gap-2"
+      className="fixed left-3 right-3 top-3 z-50 flex flex-col gap-2 sm:left-auto sm:right-4 sm:top-4 sm:w-[min(28rem,calc(100dvw-2rem))]"
       role="region"
       aria-label="Notifications"
     >

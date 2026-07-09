@@ -116,9 +116,11 @@ app.post('/api/songs/albums', uploadLimiter)
 app.use('/api/songs', publicLimiter)
 app.use('/api/playlists', publicLimiter)
 app.use('/api/feedback', publicLimiter)
+app.use('/api/analytics', publicLimiter)
 app.use('/api/songs', require('./routes/songs'))
 app.use('/api/playlists', require('./routes/playlists'))
 app.use('/api/feedback', require('./routes/feedback'))
+app.use('/api/analytics', require('./routes/analytics'))
 
 app.use((_req, res) => {
   res.status(404).json({ message: 'Route not found.' })

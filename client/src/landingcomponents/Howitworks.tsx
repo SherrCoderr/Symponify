@@ -193,7 +193,7 @@ export default function HowItWorks() {
               <div
                 key={`${step.number}-${index}`}
                 aria-hidden={index >= steps.length}
-                className="how-step-card relative min-h-[245px] w-[82vw] max-w-[390px] shrink-0 overflow-hidden rounded-[32px] border border-[rgba(26,26,24,0.08)] bg-white/85 p-8 shadow-[0_24px_60px_rgba(31,23,9,0.08)] sm:w-[calc((100vw-7rem)/2)] lg:w-[calc((72rem-3rem)/3)]"
+                className="how-step-card relative min-h-[245px] w-[82vw] max-w-[390px] shrink-0 overflow-hidden rounded-[32px] border border-[rgba(26,26,24,0.08)] bg-white/85 p-6 shadow-[0_24px_60px_rgba(31,23,9,0.08)] sm:w-[calc((100dvw-7rem)/2)] sm:p-8 lg:w-[calc((72rem-3rem)/3)]"
               >
                 <div className="absolute -top-8 -right-8 h-32 w-32 rounded-full opacity-20" style={{ background: step.blobColor }} />
                 <div className="relative z-10 flex items-start gap-4">

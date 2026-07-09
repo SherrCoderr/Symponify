@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import Waveform from './Waveform'
+import { useReducedMotion } from '../lib/animation-utils'
+import useViewport from '../hooks/useViewport'
 
 const SONGS = [
   { title: 'Midnight Echoes', artist: 'The Neon Dreams', album: 'Synthwave Vol. 3', duration: '3:42', color: 'linear-gradient(140deg, #190e2e, #43316b 60%, #ff5c35)' },
@@ -8,11 +10,37 @@ const SONGS = [
   { title: 'Acoustic Sessions', artist: 'Milo Adler', album: 'Unplugged', duration: '2:58', color: 'linear-gradient(140deg, #4b2f18, #b67339)' },
 ]
 
+const getInitialPreviewPlaying = () => (
+  typeof window === 'undefined' || !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+)
+
 export default function PlayerMockup() {
-  const [playing, setPlaying] = useState(true)
+  const prefersReducedMotion = useReducedMotion()
+  const { isMobile, isTabletOrBelow } = useViewport()
+  const previewVideoRef = useRef<HTMLVideoElement | null>(null)
+  const [isPreviewPlaying, setIsPreviewPlaying] = useState(getInitialPreviewPlaying)
   const [currentIdx, setCurrentIdx] = useState(0)
   const [progress, setProgress] = useState(34)
   const song = SONGS[currentIdx]
+  const playing = isPreviewPlaying
+
+  useEffect(() => {
+    const video = previewVideoRef.current
+    if (!video) return
+
+    if (prefersReducedMotion) {
+      video.pause()
+      setIsPreviewPlaying(false)
+      return
+    }
+
+    const playPromise = video.play()
+    if (playPromise) {
+      playPromise
+        .then(() => setIsPreviewPlaying(true))
+        .catch(() => setIsPreviewPlaying(false))
+    }
+  }, [prefersReducedMotion])
 
   useEffect(() => {
     if (!playing) return
@@ -22,6 +50,25 @@ export default function PlayerMockup() {
 
   const next = () => { setCurrentIdx((i) => (i + 1) % SONGS.length); setProgress(0) }
   const prev = () => { setCurrentIdx((i) => (i - 1 + SONGS.length) % SONGS.length); setProgress(0) }
+  const togglePreviewPlayback = () => {
+    const video = previewVideoRef.current
+    if (!video) return
+
+    if (isPreviewPlaying) {
+      video.pause()
+      setIsPreviewPlaying(false)
+      return
+    }
+
+    const playPromise = video.play()
+    if (playPromise) {
+      playPromise
+        .then(() => setIsPreviewPlaying(true))
+        .catch(() => setIsPreviewPlaying(false))
+    } else {
+      setIsPreviewPlaying(true)
+    }
+  }
 
   return (
     <motion.div
@@ -34,37 +81,27 @@ export default function PlayerMockup() {
         backdropFilter: 'blur(20px)',
         border: '1px solid var(--line)',
         boxShadow: '0 32px 80px rgba(31,23,9,0.14)',
-        maxWidth: 420,
-        width: '100%',
+        maxWidth: isMobile ? 360 : 420,
+        width: 'min(100%, 420px)',
       }}
     >
-      {/* Album art area */}
-      <div className="relative overflow-hidden" style={{ height: 220, background: song.color }}>
-        {/* Vinyl record */}
-        <motion.div
-          className={playing ? 'vinyl-spin' : ''}
-          style={{
-            position: 'absolute',
-            right: -30,
-            top: '50%',
-            translateY: '-50%',
-            width: 180,
-            height: 180,
-            borderRadius: '50%',
-            background: 'radial-gradient(circle at center, #1a1a18 20%, #2d2d2b 40%, #1a1a18 55%, #333 70%, #1a1a18 85%)',
-            boxShadow: '0 0 40px rgba(0,0,0,0.5)',
-          }}
+      {/* Intro video artwork area */}
+      <div className="relative overflow-hidden" style={{ height: isMobile ? 170 : isTabletOrBelow ? 190 : 220, background: song.color }}>
+        <video
+          ref={previewVideoRef}
+          className="block h-full w-full"
+          style={{ objectFit: 'cover', borderRadius: '32px 32px 0 0' }}
+          autoPlay={!prefersReducedMotion}
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          controls={false}
+          onPlay={() => setIsPreviewPlaying(true)}
+          onPause={() => setIsPreviewPlaying(false)}
         >
-          <div style={{
-            position: 'absolute', inset: '50%', transform: 'translate(-50%, -50%)',
-            width: 40, height: 40, borderRadius: '50%',
-            background: 'linear-gradient(135deg, var(--accent), var(--accent-2))',
-          }} />
-          <div style={{
-            position: 'absolute', inset: '50%', transform: 'translate(-50%, -50%)',
-            width: 12, height: 12, borderRadius: '50%', background: '#1a1a18'
-          }} />
-        </motion.div>
+          <source src="/videos/symponify-intro.mp4" type="video/mp4" />
+        </video>
 
         {/* Song info overlay */}
         <div className="absolute inset-0 flex flex-col justify-end p-6" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.45), transparent)' }}>
@@ -75,10 +112,10 @@ export default function PlayerMockup() {
       </div>
 
       {/* Controls */}
-      <div className="p-5">
+      <div className={isMobile ? 'p-4' : 'p-5'}>
         {/* Waveform */}
         <div className="mb-4">
-          <Waveform barCount={40} height={48} playing={playing} color="var(--accent)" />
+          <Waveform barCount={isMobile ? 30 : 40} height={isMobile ? 38 : 48} playing={playing} color="var(--accent)" />
         </div>
 
         {/* Progress bar */}
@@ -109,7 +146,7 @@ export default function PlayerMockup() {
 
           <motion.button
             whileTap={{ scale: 0.92 }}
-            onClick={() => setPlaying((v) => !v)}
+            onClick={togglePreviewPlayback}
             className="flex items-center justify-center text-white rounded-full w-14 h-14"
             style={{ background: 'linear-gradient(135deg, var(--accent), #e04a25)', boxShadow: '0 8px 24px rgba(255,92,53,0.4)' }}
             aria-label={playing ? 'Pause' : 'Play'}

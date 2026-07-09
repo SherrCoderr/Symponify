@@ -18,6 +18,7 @@ const styles = {
     padding: 'clamp(0.75rem, 2.5vw, 1.75rem)',
     overflowY: 'auto',
     height: '100%',
+    minWidth: 0,
   },
   hero: {
     marginBottom: '22px',
@@ -54,7 +55,7 @@ const styles = {
   },
   layout: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))',
     gap: '18px',
     alignItems: 'start',
   },
@@ -88,7 +89,7 @@ const styles = {
   },
   formGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))',
     gap: '12px',
   },
   field: {
@@ -244,7 +245,7 @@ const styles = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 'min(460px, calc(100vw - 32px))',
+    width: 'min(460px, calc(100dvw - 32px))',
     maxHeight: 'calc(100dvh - 40px)',
     overflowY: 'auto',
     background: 'var(--surface-glass-strong)',

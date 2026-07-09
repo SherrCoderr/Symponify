@@ -4,6 +4,7 @@ import { usePlayer } from '../context/PlayerContext'
 import CoverArt from '../components/CoverArt'
 import useViewport from '../hooks/useViewport'
 import { SvgIcon } from '../components/IconBadge'
+import { useReducedMotion } from '../lib/animation-utils'
 
 
 const parseLyrics = (song) => {
@@ -39,6 +40,7 @@ const parseLyrics = (song) => {
 export default function Lyrics() {
   const { currentTrack, progress } = usePlayer()
   const { isMobile, isTabletOrBelow } = useViewport()
+  const prefersReducedMotion = useReducedMotion()
   const scrollRef = useRef(null)
 
   // Find current active lyric line
@@ -57,10 +59,10 @@ export default function Lyrics() {
     if (scrollRef.current) {
       const activeEl = scrollRef.current.querySelector('[data-active="true"]')
       if (activeEl) {
-        activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        activeEl.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'center' })
       }
     }
-  }, [activeLineIndex])
+  }, [activeLineIndex, prefersReducedMotion])
 
   if (!currentTrack) {
     return (
@@ -84,7 +86,7 @@ export default function Lyrics() {
       )}
 
       <div style={{ ...styles.content, padding: isMobile ? '20px' : isTabletOrBelow ? '28px' : styles.content.padding }}>
-        <div style={{ ...styles.header, gap: isMobile ? '14px' : styles.header.gap, marginBottom: isMobile ? '24px' : styles.header.marginBottom }}>
+        <div style={{ ...styles.header, flexWrap: isMobile ? 'wrap' : 'nowrap', gap: isMobile ? '14px' : styles.header.gap, marginBottom: isMobile ? '24px' : styles.header.marginBottom }}>
           <CoverArt
             src={currentTrack.coverUrl}
             alt={currentTrack.title}
@@ -110,15 +112,15 @@ export default function Lyrics() {
                 style={{
                   ...styles.line,
                   color: isActive ? '#fff' : isPassed ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.3)',
-                  transform: isActive ? 'scale(1.05)' : 'scale(1)',
+                  transform: !prefersReducedMotion && isActive ? 'scale(1.05)' : 'scale(1)',
                   fontWeight: isActive ? 800 : 700,
                 }}
                 animate={{
                   color: isActive ? '#fff' : isPassed ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.3)',
-                  scale: isActive ? 1.05 : 1,
-                  filter: isActive ? 'blur(0px)' : 'blur(1px)'
+                  scale: !prefersReducedMotion && isActive ? 1.05 : 1,
+                  filter: prefersReducedMotion || isActive ? 'blur(0px)' : 'blur(1px)'
                 }}
-                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: prefersReducedMotion ? 0.01 : 0.4, ease: [0.22, 1, 0.36, 1] }}
               >
                 {lyric.text}
               </motion.div>
@@ -202,6 +204,7 @@ const styles = {
   info: {
     display: 'flex',
     flexDirection: 'column',
+    minWidth: 0,
   },
   title: {
     fontSize: '36px',
@@ -230,5 +233,7 @@ const styles = {
     transformOrigin: 'left center',
     cursor: 'pointer',
     width: 'fit-content',
+    maxWidth: '100%',
+    overflowWrap: 'anywhere',
   }
 }

@@ -166,7 +166,7 @@ export default function Sidebar({ isCompact = false, isOpen = false, onClose }) 
     borderRadius: isTabletOrBelow ? '24px' : styles.sidebar.borderRadius,
     height: isCompact ? 'calc(100dvh - 24px)' : '100%',
     maxHeight: isCompact ? 'calc(100dvh - 24px)' : '100%',
-    width: isCompact ? 'min(320px, calc(100vw - 24px))' : isWide ? '320px' : 'auto',
+    width: isCompact ? 'min(320px, calc(100dvw - 24px))' : isWide ? '320px' : 'auto',
   }
 
   const getMainLinkStyle = (isActive) => ({

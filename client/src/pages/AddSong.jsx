@@ -34,6 +34,7 @@ const styles = {
     padding: 'clamp(0.75rem, 2.5vw, 1.75rem)',
     overflowY: 'auto',
     height: '100%',
+    minWidth: 0,
   },
   hero: {
     marginBottom: '22px',
@@ -101,7 +102,7 @@ const styles = {
   },
   uploadRow: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))',
     gap: '16px',
     marginBottom: '24px',
   },
@@ -177,7 +178,7 @@ const styles = {
   },
   grid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))',
     gap: '16px',
     marginBottom: '16px',
   },
@@ -265,7 +266,7 @@ const styles = {
   },
   actions: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))',
     gap: '12px',
     marginTop: '10px',
   },

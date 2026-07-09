@@ -43,7 +43,7 @@ export default function MainLayout() {
       gap: isCompact ? '10px' : '18px',
       flex: 1,
       minWidth: 0,
-      paddingBottom: isCompact ? 'calc(156px + 12px)' : 0,
+      paddingBottom: isCompact ? (isTabletOrBelow ? '132px' : '148px') : 0,
     },
     content: {
       flex: 1,

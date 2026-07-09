@@ -167,6 +167,21 @@ export const albumsService = {
 }
 
 // ============================================
+// ANALYTICS SERVICE
+// ============================================
+export const analyticsService = {
+  recordVisit: async () => {
+    const { data } = await api.post('/api/analytics/visit')
+    return data
+  },
+
+  getStats: async () => {
+    const { data } = await api.get('/api/analytics/stats')
+    return data
+  },
+}
+
+// ============================================
 // PLAYLISTS SERVICE
 // ============================================
 export const playlistsService = {

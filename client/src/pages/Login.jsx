@@ -180,7 +180,7 @@ export default function Login() {
   const [adminSubmitting, setAdminSubmitting] = useState(false)
   const navigate = useNavigate()
   const { error: showError, success: showSuccess } = useToast()
-  const { isMobile, isTabletOrBelow, isWide } = useViewport()
+  const { isXs, isMobile, isTabletOrBelow, isWide } = useViewport()
 
   const handleAuthSuccess = (data, nextPath = '/') => {
     localStorage.removeItem('guestAccess')
@@ -290,7 +290,7 @@ export default function Login() {
           ...styles.wrap,
           width: isMobile ? '100%' : styles.wrap.width,
           maxWidth: isMobile ? '480px' : styles.wrap.width,
-          gridTemplateColumns: isMobile ? 'minmax(0, 1fr)' : 'minmax(0, 1.15fr) minmax(0, 0.85fr)',
+          gridTemplateColumns: isTabletOrBelow ? 'minmax(0, 1fr)' : 'minmax(0, 1.15fr) minmax(0, 0.85fr)',
           gap: isMobile ? '12px' : isWide ? '22px' : styles.wrap.gap,
           alignItems: 'stretch',
         }}
@@ -306,14 +306,14 @@ export default function Login() {
               Keep your favorite records, discover textured playlists, and move through your library with a warm minimal interface.
             </p>
           </div>
-          <div style={{ ...styles.metrics, gridTemplateColumns: isMobile ? 'repeat(3, minmax(0, 1fr))' : styles.metrics.gridTemplateColumns, gap: isMobile ? '10px' : styles.metrics.gap, marginTop: isMobile ? '20px' : styles.metrics.marginTop }}>
+          <div style={{ ...styles.metrics, gridTemplateColumns: isXs ? 'minmax(0, 1fr)' : 'repeat(auto-fit, minmax(120px, 1fr))', gap: isMobile ? '10px' : styles.metrics.gap, marginTop: isMobile ? '20px' : styles.metrics.marginTop }}>
             <div style={styles.metricCard}>
               <div style={{ ...styles.metricNum, fontSize: isMobile ? '1.05rem' : styles.metricNum.fontSize }}>24/7</div>
               <div style={{ ...styles.metricLabel, fontSize: isMobile ? '0.66rem' : styles.metricLabel.fontSize }}>always-on personal listening</div>
             </div>
             <div style={styles.metricCard}>
-              <div style={{ ...styles.metricNum, fontSize: isMobile ? '1.05rem' : styles.metricNum.fontSize }}>120+</div>
-              <div style={{ ...styles.metricLabel, fontSize: isMobile ? '0.66rem' : styles.metricLabel.fontSize }}>handpicked moods and mixes</div>
+              <div style={{ ...styles.metricNum, fontSize: isMobile ? '1.05rem' : styles.metricNum.fontSize }}>Curated</div>
+              <div style={{ ...styles.metricLabel, fontSize: isMobile ? '0.66rem' : styles.metricLabel.fontSize }}>moods and mixes when available</div>
             </div>
             <div style={styles.metricCard}>
               <div style={{ ...styles.metricNum, fontSize: isMobile ? '1.05rem' : styles.metricNum.fontSize }}>HD</div>
