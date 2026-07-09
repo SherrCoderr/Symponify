@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🎧 Symponify
+# Symponify
 
 ### A modern music streaming web app built with the MERN stack.
 
@@ -20,27 +20,27 @@
 
 ---
 
-## 📌 About
+## About
 
 **Symponify** is a full-stack music streaming platform where users can explore songs, play music, search tracks, like songs, create playlists, and manage their music library. It also includes an admin panel for uploading and managing songs with Cloudinary media storage.
 
 ---
 
-## ✨ Features
+## Features
 
-* 🎵 Stream songs with a custom music player
-* 🔍 Search songs by title, artist, or album
-* ❤️ Like and save favorite songs
-* 📁 Create and manage playlists
-* 💿 Browse albums and music library
-* 🔐 User authentication with JWT
-* 🛠️ Admin dashboard for song management
-* ☁️ Upload songs and covers using Cloudinary
-* 📱 Responsive and modern UI
+* Stream songs with a custom music player
+* Search songs by title, artist, or album
+* Like and save favorite songs
+* Create and manage playlists
+* Browse albums and music library
+* User authentication with JWT
+* Admin dashboard for song management
+* Upload songs and covers using Cloudinary
+* Responsive and modern UI
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Frontend      | Backend    | Database & Storage |
 | ------------- | ---------- | ------------------ |

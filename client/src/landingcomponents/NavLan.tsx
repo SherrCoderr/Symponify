@@ -4,13 +4,18 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 
 const links = [
-  { label: 'Features', path: '/features' },
+  { label: 'Hero', path: '#hero' },
+  { label: 'Features', path: '#features' },
   { label: 'How it works', path: '#how-it-works' },
-  { label: 'FAQ', path: '/faq' },
-  { label: 'About', path: '/about' }
+  { label: 'Coming soon', path: '#coming-soon' },
+  { label: 'Footer', path: '#footer' },
 ]
 
-export default function Navbar() {
+type NavbarProps = {
+  onSectionClick?: (target: string) => boolean
+}
+
+export default function Navbar({ onSectionClick }: NavbarProps) {
   const navigate = useNavigate()
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -39,7 +44,7 @@ export default function Navbar() {
           }}
         >
           {/* Brand */}
-          <a href="#" className="flex items-center gap-2.5">
+          <button type="button" onClick={() => onSectionClick?.('#hero')} className="flex items-center gap-2.5">
             <span
               className="w-8 h-8 rounded-full flex items-center justify-center glow-pulse"
               style={{ background: 'linear-gradient(135deg, var(--accent), var(--accent-2))' }}
@@ -49,20 +54,21 @@ export default function Navbar() {
             <span style={{ fontFamily: 'var(--serif)', fontSize: '22px', color: 'var(--text)' }}>
               Symponify
             </span>
-          </a>
+          </button>
 
           {/* Desktop nav */}
           <ul className="hidden md:flex items-center gap-1">
             {links.map((link) => (
               <li key={link.label}>
                 {link.path.startsWith('#') ? (
-                  <a
-                    href={link.path}
+                  <button
+                    type="button"
+                    onClick={() => onSectionClick?.(link.path)}
                     className="px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 hover:bg-black/5"
                     style={{ color: 'var(--text-2)' }}
                   >
                     {link.label}
-                  </a>
+                  </button>
                 ) : (
                   <button
                     onClick={() => navigate(link.path)}
@@ -142,9 +148,7 @@ export default function Navbar() {
                 key={link.label}
                 onClick={() => {
                   if (link.path.startsWith('#')) {
-                    // For hash links, scroll to element
-                    const el = document.querySelector(link.path)
-                    if (el) el.scrollIntoView({ behavior: 'smooth' })
+                    onSectionClick?.(link.path)
                   } else {
                     navigate(link.path)
                   }

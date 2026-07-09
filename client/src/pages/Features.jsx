@@ -2,48 +2,49 @@ import { motion } from 'framer-motion'
 import { pageVariants, listItemVariants } from '../lib/animations'
 import { useReducedMotion } from '../lib/animation-utils'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import IconBadge, { SvgIcon } from '../components/IconBadge'
 
 export default function Features() {
   const prefersReducedMotion = useReducedMotion()
 
   const features = [
     {
-      icon: '🎵',
+      icon: 'music',
       title: 'Extensive Music Library',
       description: 'Access thousands of songs across all genres and moods'
     },
     {
-      icon: '❤️',
+      icon: 'heart',
       title: 'Personalized Favorites',
       description: 'Like and save your favorite tracks for quick access'
     },
     {
-      icon: '📝',
+      icon: 'listMusic',
       title: 'Curated Playlists',
       description: 'Create and manage your own custom playlists'
     },
     {
-      icon: '🔍',
+      icon: 'search',
       title: 'Advanced Search',
       description: 'Find songs by title, artist, album, or mood'
     },
     {
-      icon: '💾',
+      icon: 'cloud',
       title: 'Cloud Sync',
       description: 'Your library syncs across all your devices'
     },
     {
-      icon: '🎨',
+      icon: 'palette',
       title: 'Beautiful UI',
       description: 'Clean, minimal interface designed for focus'
     },
     {
-      icon: '🌙',
+      icon: 'moon',
       title: 'Dark Mode',
       description: 'Easy on the eyes with full dark mode support'
     },
     {
-      icon: '⚡',
+      icon: 'zap',
       title: 'Fast & Responsive',
       description: 'Lightning-quick performance and smooth interactions'
     }
@@ -83,7 +84,7 @@ export default function Features() {
             >
               <Card className="h-full bg-[var(--surface-2)] border-[var(--line)] hover:bg-white/10 transition-colors">
                 <CardHeader>
-                  <div className="text-4xl mb-4">{feature.icon}</div>
+                  <IconBadge name={feature.icon} size={24} className="mb-4" />
                   <CardTitle>{feature.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -102,10 +103,12 @@ export default function Features() {
         >
           <h2 className="text-3xl font-bold mb-4">Coming Soon</h2>
           <ul className="space-y-3 text-lg text-[var(--text-2)]">
-            <li>✨ Collaborative playlists with friends</li>
-            <li>✨ Podcast integration</li>
-            <li>✨ Advanced audio filters and EQ</li>
-            <li>✨ Social features and sharing</li>
+            {['Collaborative playlists with friends', 'Podcast integration', 'Advanced audio filters and EQ', 'Social features and sharing'].map((item) => (
+              <li key={item} className="flex items-start gap-3">
+                <SvgIcon name="sparkles" size={18} style={{ color: 'var(--accent)', marginTop: 4, flexShrink: 0 }} />
+                <span>{item}</span>
+              </li>
+            ))}
           </ul>
         </motion.div>
       </div>

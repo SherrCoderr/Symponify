@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import useViewport from '../hooks/useViewport'
 import CoverArt from './CoverArt'
 import { useReducedMotion } from '../lib/animation-utils'
+import { SvgIcon } from './IconBadge'
 
 const Icon = ({ name, size = 20, style: extraStyle }) => (
   <span className="material-symbols-rounded" style={{ fontSize: size, lineHeight: 1, ...extraStyle }}>{name}</span>
@@ -65,7 +66,7 @@ export default function AlbumCard({ album, onSelect, active = false, onOpen }) {
             fontSize: isMobile ? '34px' : isWide ? '46px' : styles.art.fontSize,
           }}
           imgStyle={styles.image}
-          fallback={album.emoji || <Icon name="music_note" size={32} />}
+          fallback={<SvgIcon name="disc" size={32} />}
         />
         <motion.div 
           style={styles.playOverlay}

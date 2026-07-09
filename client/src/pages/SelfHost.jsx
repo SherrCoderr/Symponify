@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import { pageVariants, listItemVariants } from '../lib/animations'
 import { useReducedMotion } from '../lib/animation-utils'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { SvgIcon } from '../components/IconBadge'
 
 export default function SelfHost() {
   const prefersReducedMotion = useReducedMotion()
@@ -80,7 +81,7 @@ export default function SelfHost() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="mb-12 p-6 rounded-lg bg-blue-500/10 border border-blue-500/20"
         >
-          <h2 className="text-lg font-semibold mb-2">📚 Full Documentation</h2>
+          <h2 className="text-lg font-semibold mb-2 flex items-center gap-2"><SvgIcon name="book" size={20} /> Full Documentation</h2>
           <p className="text-[var(--text-2)] mb-4">
             For detailed step-by-step instructions and troubleshooting:
           </p>

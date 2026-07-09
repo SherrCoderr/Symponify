@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import { pageVariants } from '../lib/animations'
 import { useReducedMotion } from '../lib/animation-utils'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { SvgIcon } from '../components/IconBadge'
 
 export default function About() {
   const prefersReducedMotion = useReducedMotion()
@@ -73,19 +74,19 @@ export default function About() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <h3 className="font-semibold mb-2">🎯 Simplicity</h3>
+                  <h3 className="font-semibold mb-2 flex items-center gap-2"><SvgIcon name="target" size={18} /> Simplicity</h3>
                   <p className="text-[var(--text-2)]">We keep things simple and intuitive</p>
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-2">♿ Accessibility</h3>
+                  <h3 className="font-semibold mb-2 flex items-center gap-2"><SvgIcon name="accessibility" size={18} /> Accessibility</h3>
                   <p className="text-[var(--text-2)]">Music should be for everyone</p>
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-2">🌐 Open Source</h3>
+                  <h3 className="font-semibold mb-2 flex items-center gap-2"><SvgIcon name="globe" size={18} /> Open Source</h3>
                   <p className="text-[var(--text-2)]">Community-driven development</p>
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-2">✨ Quality</h3>
+                  <h3 className="font-semibold mb-2 flex items-center gap-2"><SvgIcon name="sparkles" size={18} /> Quality</h3>
                   <p className="text-[var(--text-2)]">Excellence in everything we do</p>
                 </div>
               </div>

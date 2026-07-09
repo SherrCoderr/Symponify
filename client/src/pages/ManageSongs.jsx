@@ -7,6 +7,7 @@ import { usePlayer } from '../context/PlayerContext'
 import { adminSongsService, albumsService, songsService } from '../lib/services'
 import { useToast } from '../context/ToastContext'
 import useViewport from '../hooks/useViewport'
+import { SvgIcon } from '../components/IconBadge'
 
 const Icon = ({ name, size = 18, style: extraStyle }) => (
   <span className="material-symbols-rounded" style={{ fontSize: size, lineHeight: 1, ...extraStyle }}>{name}</span>
@@ -667,7 +668,7 @@ export default function ManageSongs() {
                     alt={`${selectedAlbum} cover`}
                     containerStyle={{ ...styles.art, width: '72px', height: '72px', borderRadius: '18px', background: selectedAlbumCover ? 'var(--surface-2)' : selectedAlbumData?.color || 'linear-gradient(135deg, #333, #666)', fontSize: '28px' }}
                     imgStyle={styles.artImage}
-                    fallback={selectedAlbumData?.emoji || <Icon name="music_note" size={22} />}
+                    fallback={<SvgIcon name="disc" size={24} />}
                   />
                   <div>
                     <div style={styles.songName}>{selectedAlbum}</div>
@@ -713,7 +714,7 @@ export default function ManageSongs() {
                             alt={`${song.title} cover`}
                             containerStyle={{ ...styles.art, background: song.coverUrl ? 'var(--surface-2)' : song.color || 'linear-gradient(135deg, #333, #666)' }}
                             imgStyle={styles.artImage}
-                            fallback={song.emoji || <Icon name="music_note" size={22} />}
+                            fallback={<SvgIcon name="disc" size={22} />}
                           />
                           <div style={{ minWidth: 0 }}>
                             <div style={styles.songName}>{song.title}</div>

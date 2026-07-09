@@ -3,6 +3,7 @@ import { pageVariants, listItemVariants } from '../lib/animations'
 import { useReducedMotion } from '../lib/animation-utils'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { SvgIcon } from '../components/IconBadge'
 
 export default function Blog() {
   const prefersReducedMotion = useReducedMotion()
@@ -77,7 +78,7 @@ export default function Blog() {
                       {post.category}
                     </Badge>
                   </div>
-                  <div className="text-sm text-[var(--text-2)] mt-4">📅 {post.date}</div>
+                  <div className="text-sm text-[var(--text-2)] mt-4 flex items-center gap-2"><SvgIcon name="calendar" size={16} /> {post.date}</div>
                 </CardHeader>
                 <CardContent>
                   <a href="#" className="text-accent hover:underline text-sm font-semibold">

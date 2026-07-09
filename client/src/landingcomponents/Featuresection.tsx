@@ -1,13 +1,14 @@
 import { useRef } from 'react'
 import { motion, useScroll, useTransform, useInView, useSpring } from 'framer-motion'
+import { SvgIcon } from '../components/IconBadge'
 
 const features = [
-  { icon: '🎧', title: 'Immersive Player', desc: 'Silky-smooth player with waveform viz, queue management and keyboard shortcuts — built for audiophiles.', tag: 'Core', color: 'linear-gradient(135deg, #ff5c35, #ff8c6a)' },
-  { icon: '📚', title: 'Curated Library', desc: 'Browse a thoughtfully organized catalog with playlists, albums, and featured tracks that feel effortless to explore.', tag: 'Library', color: 'linear-gradient(135deg, #0f3554, #3f88c5)' },
-  { icon: '🔍', title: 'Smart Search', desc: 'Find any song, album, or artist instantly. Filter by genre, album, or mood — always the right result.', tag: 'Discovery', color: 'linear-gradient(135deg, #4b2f18, #b67339)' },
-  { icon: '❤️', title: 'Liked Songs', desc: 'Heart tracks you love. Your library stays in sync and waits for you on any device.', tag: 'Personal', color: 'linear-gradient(135deg, #190e2e, #7b2d8b)' },
-  { icon: '🌐', title: 'Everywhere Access', desc: 'Listen on phone, tablet, or desktop. Your queue and favorites follow you across all devices.', tag: 'Sync', color: 'linear-gradient(135deg, #1a3a1a, #2e7d32)' },
-  { icon: '⚡', title: 'Lightning Fast', desc: 'Stream without buffering. Instant playback and smooth navigation across the entire app.', tag: 'Speed', color: 'linear-gradient(135deg, #3a1a1a, #c62828)' },
+  { icon: 'headphones', title: 'Immersive Player', desc: 'Silky-smooth player with waveform viz, queue management and keyboard shortcuts — built for audiophiles.', tag: 'Core', color: 'linear-gradient(135deg, #ff5c35, #ff8c6a)' },
+  { icon: 'library', title: 'Curated Library', desc: 'Browse a thoughtfully organized catalog with playlists, albums, and featured tracks that feel effortless to explore.', tag: 'Library', color: 'linear-gradient(135deg, #0f3554, #3f88c5)' },
+  { icon: 'search', title: 'Smart Search', desc: 'Find any song, album, or artist instantly. Filter by genre, album, or mood — always the right result.', tag: 'Discovery', color: 'linear-gradient(135deg, #4b2f18, #b67339)' },
+  { icon: 'heart', title: 'Liked Songs', desc: 'Heart tracks you love. Your library stays in sync and waits for you on any device.', tag: 'Personal', color: 'linear-gradient(135deg, #190e2e, #7b2d8b)' },
+  { icon: 'globe', title: 'Everywhere Access', desc: 'Listen on phone, tablet, or desktop. Your queue and favorites follow you across all devices.', tag: 'Sync', color: 'linear-gradient(135deg, #1a3a1a, #2e7d32)' },
+  { icon: 'zap', title: 'Lightning Fast', desc: 'Stream without buffering. Instant playback and smooth navigation across the entire app.', tag: 'Speed', color: 'linear-gradient(135deg, #3a1a1a, #c62828)' },
 ]
 
 export default function FeaturesSection() {
@@ -20,7 +21,7 @@ export default function FeaturesSection() {
   const bgScale = useTransform(scrollYProgress, [0, 0.5, 1], [0.9, 1, 0.95])
 
   return (
-    <section id="features" ref={sectionRef} className="py-28 px-4 relative overflow-hidden">
+    <section id="features" ref={sectionRef} className="landing-reveal py-28 px-4 relative overflow-hidden">
       {/* Scroll-zoom background blob */}
       <motion.div
         style={{ y: bgY, scale: bgScale }}
@@ -117,7 +118,7 @@ function FeatureCard({ feature: f, index: i }: { feature: typeof features[0], in
         whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
         transition={{ duration: 0.5 }}
       >
-        {f.icon}
+        <SvgIcon name={f.icon} size={24} />
       </motion.div>
 
       <span className="absolute top-5 right-5 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full"

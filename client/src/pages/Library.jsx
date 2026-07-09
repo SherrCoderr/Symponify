@@ -126,7 +126,7 @@ export default function Library() {
       artistMap.set(key, {
         title: key,
         artist: 'Artist Collection',
-        emoji: song.emoji || 'Artist',
+        emoji: '',
         color: song.color || 'linear-gradient(135deg, #6536d6, #b35fff)',
         coverUrl: song.coverUrl || '',
       })

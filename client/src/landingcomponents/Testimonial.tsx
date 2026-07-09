@@ -26,7 +26,7 @@ export default function Testimonials() {
   const col3 = testimonials.filter((_, i) => i % 3 === 2)
 
   return (
-    <section id="testimonials" ref={sectionRef} className="py-28 px-4 overflow-hidden">
+    <section id="testimonials" ref={sectionRef} className="landing-reveal py-28 px-4 overflow-hidden">
       <div className="max-w-6xl mx-auto">
         <div ref={titleRef} className="text-center mb-16">
           <motion.span

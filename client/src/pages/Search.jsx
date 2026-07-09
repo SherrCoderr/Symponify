@@ -10,6 +10,7 @@ import SongRow from '../components/SongRow'
 import Loader from '../components/Loader'
 import { usePlayer } from '../context/PlayerContext'
 import useViewport from '../hooks/useViewport'
+import { SvgIcon } from '../components/IconBadge'
 
 const genrePills = ['All', 'Pop', 'Jazz', 'Electronic', 'Chill']
 
@@ -237,7 +238,9 @@ export default function Search() {
           <span style={styles.topBadge}>Top result</span>
           {topResult ? (
             <button type="button" style={styles.topResultButton} onClick={() => playSong(topResult, songs)}>
-              <div style={{ fontSize: isMobile ? '40px' : '48px', marginBottom: '12px' }}>{topResult.emoji || 'Music'}</div>
+              <div style={{ width: isMobile ? '56px' : '64px', height: isMobile ? '56px' : '64px', borderRadius: '20px', marginBottom: '12px', display: 'grid', placeItems: 'center', background: 'rgba(255,255,255,0.16)', color: '#fff' }}>
+                <SvgIcon name="disc" size={isMobile ? 30 : 34} />
+              </div>
               <h2 style={{ fontSize: isMobile ? '26px' : '32px', marginBottom: '8px', wordBreak: 'break-word' }}>{topResult.title}</h2>
               <p style={{ color: 'rgba(255,255,255,0.72)' }}>
                 {topResult.artist} | {topResult.album || 'Single'}

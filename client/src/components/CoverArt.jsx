@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { SvgIcon } from './IconBadge'
 
 export default function CoverArt({ src, alt, fallback, imgStyle, containerStyle }) {
   const [failed, setFailed] = useState(false)
@@ -20,6 +21,8 @@ export default function CoverArt({ src, alt, fallback, imgStyle, containerStyle 
             setFailed(true)
           }}
         />
+      ) : typeof fallback === 'string' || !fallback ? (
+        <SvgIcon name="disc" size={28} />
       ) : (
         fallback
       )}

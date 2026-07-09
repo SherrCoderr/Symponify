@@ -23,7 +23,7 @@ export default function CtaSection() {
   const orb2Scale = useTransform(scrollYProgress, [0, 0.5, 1], [1.2, 0.7, 1.1])
 
   return (
-    <section ref={sectionRef} className="py-20 px-4 relative overflow-hidden">
+    <section id="coming-soon" ref={sectionRef} className="landing-reveal py-20 px-4 relative overflow-hidden">
       <div className="max-w-4xl mx-auto" ref={cardRef}>
         <motion.div
           className="relative overflow-hidden rounded-[40px] px-10 py-20 text-center"

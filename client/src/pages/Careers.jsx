@@ -3,6 +3,7 @@ import { pageVariants, listItemVariants } from '../lib/animations'
 import { useReducedMotion } from '../lib/animation-utils'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { SvgIcon } from '../components/IconBadge'
 
 export default function Careers() {
   const prefersReducedMotion = useReducedMotion()
@@ -61,11 +62,18 @@ export default function Careers() {
         >
           <h2 className="text-2xl font-bold mb-4">Why Symponify?</h2>
           <ul className="space-y-2 text-[var(--text-2)]">
-            <li>✨ Open-source and community-driven</li>
-            <li>✨ Work on a product used by music lovers worldwide</li>
-            <li>✨ Remote-first, flexible culture</li>
-            <li>✨ Competitive compensation and benefits</li>
-            <li>✨ Continuous learning opportunities</li>
+            {[
+              'Open-source and community-driven',
+              'Work on a product used by music lovers worldwide',
+              'Remote-first, flexible culture',
+              'Competitive compensation and benefits',
+              'Continuous learning opportunities',
+            ].map((item) => (
+              <li key={item} className="flex items-start gap-3">
+                <SvgIcon name="sparkles" size={17} style={{ color: 'var(--accent)', marginTop: 3, flexShrink: 0 }} />
+                <span>{item}</span>
+              </li>
+            ))}
           </ul>
         </motion.div>
 
@@ -81,7 +89,7 @@ export default function Careers() {
                     </div>
                     <Badge variant="secondary">{pos.type}</Badge>
                   </div>
-                  <div className="mt-4 text-sm text-[var(--text-2)]">📍 {pos.location}</div>
+                  <div className="mt-4 text-sm text-[var(--text-2)] flex items-center gap-2"><SvgIcon name="mapPin" size={16} /> {pos.location}</div>
                 </CardHeader>
                 <CardContent>
                   <a href="#" className="text-accent hover:underline text-sm font-semibold">

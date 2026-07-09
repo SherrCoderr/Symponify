@@ -4,6 +4,7 @@ import { usePlayer } from '../context/PlayerContext'
 import useViewport from '../hooks/useViewport'
 import { useReducedMotion } from '../lib/animation-utils'
 import CoverArt from './CoverArt'
+import { SvgIcon } from './IconBadge'
 
 const Icon = ({ name, size = 18, style: extraStyle, fill = false }) => (
   <span className="material-symbols-rounded" style={{ fontSize: size, lineHeight: 1, fontVariationSettings: fill ? "'FILL' 1" : "'FILL' 0", ...extraStyle }}>{name}</span>
@@ -52,7 +53,7 @@ export default function SongRow({ song, index, onPlay }) {
         alt={`${song.title} cover`}
         containerStyle={{ ...styles.cover, background: song.coverUrl ? 'var(--surface-2)' : song.color || 'var(--surface-2)', gridRow: isMobile ? '1 / span 2' : 'auto' }}
         imgStyle={styles.coverImage}
-        fallback={song.emoji || <Icon name="play_arrow" size={24} />}
+        fallback={<SvgIcon name="disc" size={24} />}
       />
       <div style={{ ...styles.info, gridColumn: isMobile ? '2 / 3' : 'auto' }}>
         <div style={{ ...styles.title, color: active ? 'var(--accent)' : 'var(--text)' }}>{song.title}</div>

@@ -78,7 +78,7 @@ export default function Footer() {
   }
 
   return (
-    <footer className="py-16 px-4" style={{ borderTop: '1px solid var(--line)', background: 'var(--bg)' }}>
+    <footer id="footer" className="landing-reveal py-16 px-4" style={{ borderTop: '1px solid var(--line)', background: 'var(--bg)' }}>
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-8 gap-8 mb-14">
           {/* Brand column */}
@@ -187,7 +187,7 @@ export default function Footer() {
           style={{ borderTop: '1px solid var(--line)' }}
         >
           <p className="text-sm" style={{ color: 'var(--text-3)' }}>
-            © 2026 Symponify. Built with ❤️ and too many late nights.
+            © 2026 Symponify. Built with care and too many late nights.
           </p>
           <div className="flex items-center gap-4">
             <a

@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
+import { SvgIcon } from '../components/IconBadge'
 
 export default function Contact() {
   const prefersReducedMotion = useReducedMotion()
@@ -41,7 +42,7 @@ export default function Contact() {
         >
           <Card className="bg-[var(--surface-2)] border-[var(--line)]">
             <CardHeader>
-              <CardTitle>📧 Email</CardTitle>
+              <CardTitle className="flex items-center gap-2"><SvgIcon name="mail" size={20} /> Email</CardTitle>
             </CardHeader>
             <CardContent>
               <a href="mailto:hello@symponify.com" className="text-accent hover:underline">
@@ -52,7 +53,7 @@ export default function Contact() {
 
           <Card className="bg-[var(--surface-2)] border-[var(--line)]">
             <CardHeader>
-              <CardTitle>💬 Discord</CardTitle>
+              <CardTitle className="flex items-center gap-2"><SvgIcon name="message" size={20} /> Discord</CardTitle>
             </CardHeader>
             <CardContent>
               <a href="#" className="text-accent hover:underline">
@@ -63,7 +64,7 @@ export default function Contact() {
 
           <Card className="bg-[var(--surface-2)] border-[var(--line)]">
             <CardHeader>
-              <CardTitle>🐙 GitHub</CardTitle>
+              <CardTitle className="flex items-center gap-2"><SvgIcon name="github" size={20} /> GitHub</CardTitle>
             </CardHeader>
             <CardContent>
               <a href="https://github.com/symponify" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">

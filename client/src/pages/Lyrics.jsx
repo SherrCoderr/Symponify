@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { usePlayer } from '../context/PlayerContext'
 import CoverArt from '../components/CoverArt'
 import useViewport from '../hooks/useViewport'
+import { SvgIcon } from '../components/IconBadge'
 
 
 const parseLyrics = (song) => {
@@ -89,7 +90,7 @@ export default function Lyrics() {
             alt={currentTrack.title}
             containerStyle={{ ...styles.cover, width: isMobile ? '72px' : styles.cover.width, height: isMobile ? '72px' : styles.cover.height }}
             imgStyle={styles.coverImage}
-            fallback={currentTrack.emoji}
+            fallback={<SvgIcon name="mic" size={32} />}
           />
           <div style={styles.info}>
             <h1 style={{ ...styles.title, fontSize: isMobile ? '26px' : styles.title.fontSize }}>{currentTrack.title}</h1>

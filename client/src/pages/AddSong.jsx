@@ -4,6 +4,7 @@ import { usePlayer } from '../context/PlayerContext'
 import { adminSongsService, albumsService } from '../lib/services'
 import { useToast } from '../context/ToastContext'
 import useViewport from '../hooks/useViewport'
+import { SvgIcon } from '../components/IconBadge'
 
 const initialForm = {
   title: '',
@@ -12,12 +13,11 @@ const initialForm = {
   duration: '',
   genre: '',
   lyrics: '',
-  emoji: '\uD83C\uDFB5',
+  emoji: '',
   color: 'linear-gradient(135deg,#FF5C35,#F0A500)',
 }
 
 const genres = ['Pop', 'Rock', 'Jazz', 'Bollywood', 'Electronic', 'Chill', 'Hip-Hop', 'Classical']
-const emojis = ['\uD83C\uDFB8', '\uD83C\uDFA4', '\uD83C\uDFB9', '\uD83E\uDD41', '\uD83C\uDFAA', '\uD83C\uDFBB', '\uD83C\uDF0A', '\uD83D\uDD25', '\uD83C\uDF38', '\uD83C\uDF3F', '\uD83C\uDF0C', '\u2728']
 const colors = [
   'linear-gradient(135deg,#FF5C35,#F0A500)',
   'linear-gradient(135deg,#1a3c5e,#4a90d9)',
@@ -202,18 +202,19 @@ const styles = {
     fontSize: '1rem',
     minHeight: '44px',
   },
-  emojiRow: {
+  iconRow: {
     display: 'flex',
     flexWrap: 'wrap',
     gap: '8px',
   },
-  emojiButton: {
+  iconButton: {
     width: '42px',
     height: '42px',
     borderRadius: '12px',
     border: '1px solid var(--line)',
-    fontSize: '18px',
     cursor: 'pointer',
+    display: 'grid',
+    placeItems: 'center',
   },
   colorRow: {
     display: 'flex',
@@ -242,8 +243,15 @@ const styles = {
     objectFit: 'cover',
     flexShrink: 0,
   },
-  previewEmoji: {
-    fontSize: '38px',
+  previewIcon: {
+    width: '52px',
+    height: '52px',
+    borderRadius: '12px',
+    display: 'grid',
+    placeItems: 'center',
+    background: 'rgba(255,255,255,0.18)',
+    color: '#fff',
+    flexShrink: 0,
   },
   previewTitle: {
     fontSize: '18px',
@@ -458,7 +466,7 @@ export default function AddSong() {
     formData.append('duration', form.duration)
     formData.append('genre', form.genre)
     formData.append('lyrics', form.lyrics)
-    formData.append('emoji', form.emoji)
+    formData.append('emoji', '')
     formData.append('color', form.color)
     formData.append('audio', audioFile)
 
@@ -699,26 +707,6 @@ export default function AddSong() {
         </div>
 
         <div style={styles.field}>
-          <label style={styles.label}>Emoji Icon</label>
-          <div style={styles.emojiRow}>
-            {emojis.map((emoji) => (
-              <button
-                key={emoji}
-                type="button"
-                style={{
-                  ...styles.emojiButton,
-                  background: form.emoji === emoji ? 'var(--active-bg)' : 'var(--surface-2)',
-                  color: form.emoji === emoji ? 'var(--active-text)' : 'var(--text)',
-                }}
-                onClick={() => setForm((prev) => ({ ...prev, emoji }))}
-              >
-                {emoji}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div style={styles.field}>
           <label style={styles.label}>Card Color</label>
           <div style={styles.colorRow}>
             {colors.map((color) => (
@@ -740,7 +728,13 @@ export default function AddSong() {
         <div style={styles.field}>
           <label style={styles.label}>Preview</label>
           <div style={{ ...styles.preview, background: form.color, flexDirection: isPhone ? 'column' : 'row', alignItems: isPhone ? 'flex-start' : styles.preview.alignItems }}>
-            {coverPreview ? <img src={coverPreview} alt="cover preview" style={styles.previewImage} /> : <span style={styles.previewEmoji}>{form.emoji}</span>}
+            {coverPreview ? (
+              <img src={coverPreview} alt="cover preview" style={styles.previewImage} />
+            ) : (
+              <span style={styles.previewIcon}>
+                <SvgIcon name="disc" size={28} />
+              </span>
+            )}
             <div>
               <div style={styles.previewTitle}>{form.title || 'Song Title'}</div>
               <div style={styles.previewSub}>{form.artist || 'Artist Name'}</div>

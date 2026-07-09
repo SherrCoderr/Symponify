@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { usePlayer } from '../context/PlayerContext'
 import useViewport from '../hooks/useViewport'
 import CoverArt from './CoverArt'
+import { SvgIcon } from './IconBadge'
 
 const Icon = ({ name, size = 20, style: extraStyle, fill = false }) => (
   <span className="material-symbols-rounded" style={{ fontSize: size, lineHeight: 1, fontVariationSettings: fill ? "'FILL' 1" : "'FILL' 0", ...extraStyle }}>{name}</span>
@@ -265,7 +266,7 @@ export default function PlayerBar() {
             background: track.coverUrl ? 'var(--surface-2)' : track.color || 'linear-gradient(135deg, #ff5c35, #f0a500)',
           }}
           imgStyle={styles.coverImage}
-          fallback={track.emoji || <Icon name="play_arrow" size={isMobile ? 20 : 24} />}
+          fallback={<SvgIcon name="disc" size={isMobile ? 20 : 24} />}
         />
         <div style={computedStyles.leftMeta}>
           <div style={{ ...styles.title, fontSize: isMobile ? '13px' : styles.title.fontSize }}>{track.title}</div>

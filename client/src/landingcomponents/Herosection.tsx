@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { SvgIcon } from '../components/IconBadge'
 import PlayerMockup from './Playermockup'
 
 const letterVariants = {
@@ -32,7 +33,7 @@ export default function HeroSection() {
   const springScale = useSpring(scale, { stiffness: 60, damping: 20 })
 
   return (
-    <section ref={ref} className="relative flex flex-col items-center justify-center min-h-screen px-4 pb-20 overflow-hidden pt-28">
+    <section id="hero" ref={ref} className="landing-reveal relative flex flex-col items-center justify-center min-h-screen px-4 pb-20 overflow-hidden pt-28">
       {/* Background zoom ring */}
       <motion.div
         initial={{ scale: 0.5, opacity: 0 }}
@@ -70,10 +71,10 @@ export default function HeroSection() {
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           >
             <Badge
-              className="mb-6 rounded-full text-xs font-semibold px-4 py-1.5 border-0"
+              className="mb-6 inline-flex items-center gap-2 rounded-full text-xs font-semibold px-4 py-1.5 border-0"
               style={{ background: 'var(--accent-soft)', color: 'var(--accent)' }}
             >
-              🎵 Now in public beta
+              <SvgIcon name="music" size={14} /> Now in public beta
             </Badge>
           </motion.div>
 

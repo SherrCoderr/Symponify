@@ -30,7 +30,7 @@ const normalizeSongInput = (body = {}) => ({
   duration: safeTrim(body.duration),
   genre: safeTrim(body.genre),
   lyrics: safeTrim(body.lyrics),
-  emoji: safeTrim(body.emoji) || '\uD83C\uDFB5',
+  emoji: safeTrim(body.emoji),
   color: safeTrim(body.color) || 'linear-gradient(135deg, #333, #666)',
 })
 
@@ -47,7 +47,7 @@ const getAlbumsWithCounts = async (req) => {
       title: album.title,
       artist: album.artist || '',
       color: album.color || 'linear-gradient(135deg, #333, #666)',
-      emoji: album.emoji || '\uD83C\uDFB5',
+      emoji: album.emoji || '',
       coverUrl: normalizeMediaUrl(req, album.coverUrl),
       songCount: 0,
     })
@@ -62,7 +62,7 @@ const getAlbumsWithCounts = async (req) => {
         title,
         artist: song.artist || '',
         color: song.color || 'linear-gradient(135deg, #333, #666)',
-        emoji: song.emoji || '\uD83C\uDFB5',
+        emoji: song.emoji || '',
         coverUrl: normalizeMediaUrl(req, song.coverUrl),
         songCount: 0,
       })
@@ -184,7 +184,7 @@ router.post('/albums', authMiddleware, requireAdmin, upload.single('cover'), asy
       title,
       artist,
       color: safeTrim(req.body.color) || 'linear-gradient(135deg, #333, #666)',
-      emoji: safeTrim(req.body.emoji) || '\uD83C\uDFB5',
+      emoji: safeTrim(req.body.emoji),
       coverUrl,
       coverPublicId,
     })
@@ -373,7 +373,7 @@ router.post('/albums/:album/cover', authMiddleware, requireAdmin, upload.single(
             coverPublicId,
             artist: existingAlbum?.artist || firstSong?.artist || '',
             color: existingAlbum?.color || firstSong?.color || 'linear-gradient(135deg, #333, #666)',
-            emoji: existingAlbum?.emoji || firstSong?.emoji || '\uD83C\uDFB5',
+            emoji: existingAlbum?.emoji || firstSong?.emoji || '',
           },
           $setOnInsert: { title: albumName },
         },
@@ -414,7 +414,7 @@ router.put('/albums/:album', authMiddleware, requireAdmin, async (req, res) => {
           $setOnInsert: {
             artist: firstSong?.artist || '',
             color: firstSong?.color || 'linear-gradient(135deg, #333, #666)',
-            emoji: firstSong?.emoji || '\uD83C\uDFB5',
+            emoji: firstSong?.emoji || '',
             coverUrl: firstSong?.coverUrl || '',
             coverPublicId: firstSong?.coverPublicId || '',
           },

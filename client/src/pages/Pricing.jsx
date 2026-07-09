@@ -3,6 +3,18 @@ import { pageVariants } from '../lib/animations'
 import { useReducedMotion } from '../lib/animation-utils'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { SvgIcon } from '../components/IconBadge'
+
+const includedFeatures = [
+  'Unlimited music streaming',
+  'Create and manage playlists',
+  'Like and favorite tracks',
+  'Advanced search filters',
+  'Cloud sync across devices',
+  'Beautiful, distraction-free UI',
+  'Dark mode support',
+  'Admin upload capabilities (for curators)',
+]
 
 export default function Pricing() {
   const prefersReducedMotion = useReducedMotion()
@@ -40,38 +52,14 @@ export default function Pricing() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">✓</span>
-                  <span>Unlimited music streaming</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">✓</span>
-                  <span>Create and manage playlists</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">✓</span>
-                  <span>Like and favorite tracks</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">✓</span>
-                  <span>Advanced search filters</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">✓</span>
-                  <span>Cloud sync across devices</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">✓</span>
-                  <span>Beautiful, distraction-free UI</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">✓</span>
-                  <span>Dark mode support</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">✓</span>
-                  <span>Admin upload capabilities (for curators)</span>
-                </div>
+                {includedFeatures.map((feature) => (
+                  <div key={feature} className="flex items-center gap-3">
+                    <span className="grid h-7 w-7 place-items-center rounded-full bg-accent/15 text-accent">
+                      <SvgIcon name="check" size={17} />
+                    </span>
+                    <span>{feature}</span>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
