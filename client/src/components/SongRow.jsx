@@ -2,7 +2,6 @@ import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { usePlayer } from '../context/PlayerContext'
 import useViewport from '../hooks/useViewport'
-import { listItemVariants, hoverYVariants } from '../lib/animations'
 import { useReducedMotion } from '../lib/animation-utils'
 import CoverArt from './CoverArt'
 

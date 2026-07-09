@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const User = require('../models/User')
 const authMiddleware = require('../middleware/authMiddleware')
+const { requireAdmin } = require('../middleware/authMiddleware')
 const { isValidEmail, normalizeEmail, safeTrim } = require('../utils/validation')
 
 const FIXED_ADMIN = {
@@ -150,12 +151,8 @@ router.get('/me', authMiddleware, async (req, res) => {
   }
 })
 
-router.post('/make-admin', authMiddleware, async (req, res) => {
+router.post('/make-admin', authMiddleware, requireAdmin, async (req, res) => {
   try {
-    if (!req.user?.isAdmin) {
-      return res.status(403).json({ message: 'Only admins can change admin access.' })
-    }
-
     const email = normalizeEmail(req.body.email)
 
     if (!email) {

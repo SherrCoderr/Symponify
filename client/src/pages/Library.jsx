@@ -8,13 +8,12 @@ import { useReducedMotion } from '../lib/animation-utils'
 import AlbumCard from '../components/AlbumCard'
 import useViewport from '../hooks/useViewport'
 
-const tabs = ['Albums', 'Artists', 'Podcasts']
+const tabs = ['Albums', 'Artists']
 
-const podcastItems = [
-  { title: 'Studio Notes', artist: 'Creative Talk', emoji: 'Mic', color: 'linear-gradient(135deg, #372248, #7c4dff)' },
-  { title: 'Slow Mornings', artist: 'Daily Rituals', emoji: 'Coffee', color: 'linear-gradient(135deg, #67412c, #d88c52)' },
-  { title: 'After Midnight', artist: 'Night Stories', emoji: 'Moon', color: 'linear-gradient(135deg, #0b132b, #1c2541)' },
-]
+const emptyCopyByTab = {
+  Albums: 'No albums are available yet. Upload songs or create albums from the admin tools to start filling this section.',
+  Artists: 'No artists are available yet. Artists appear here after songs have been added.',
+}
 
 const styles = {
   page: {
@@ -138,8 +137,7 @@ export default function Library() {
 
   const items = useMemo(() => {
     if (activeTab === 'Albums') return albums
-    if (activeTab === 'Artists') return artistItems
-    return podcastItems
+    return artistItems
   }, [activeTab, albums, artistItems])
 
   const pageVariantsWithAccessibility = prefersReducedMotion
@@ -192,7 +190,7 @@ export default function Library() {
           ))}
         </div>
       ) : (
-        <div style={styles.empty}>No data is available for this section yet.</div>
+        <div style={styles.empty}>{emptyCopyByTab[activeTab]}</div>
       )}
     </motion.div>
   )

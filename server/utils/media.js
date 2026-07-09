@@ -15,6 +15,14 @@ const mediaRoot = path.join(__dirname, '../public/songs')
  */
 const isRemoteUrl = (value = '') => /^https?:\/\//i.test(String(value))
 
+const isLocalMediaUrl = (value = '') => /^\/?songs\/.+/i.test(String(value).trim())
+
+const isValidMediaUrl = (value = '') => {
+  const mediaUrl = String(value || '').trim()
+  if (!mediaUrl) return false
+  return isRemoteUrl(mediaUrl) || isLocalMediaUrl(mediaUrl)
+}
+
 /**
  * Builds a local media URL (legacy, for backward compatibility).
  * For new uploads, Cloudinary URLs are used instead.
@@ -107,6 +115,8 @@ module.exports = {
   buildMediaUrl,
   getLocalMediaPath,
   getMediaRelativePath,
+  isLocalMediaUrl,
+  isValidMediaUrl,
   isRemoteUrl,
   mediaRoot,
   normalizeMediaUrl,

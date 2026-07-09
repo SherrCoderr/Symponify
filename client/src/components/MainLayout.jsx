@@ -5,7 +5,7 @@ import Navbar from './Navbar'
 import PlayerBar from './PlayerBar'
 import Sidebar from './Sidebar'
 import useViewport from '../hooks/useViewport'
-import { pageVariants, drawerVariants, backdropVariants } from '../lib/animations'
+import { pageVariants, backdropVariants } from '../lib/animations'
 import { useReducedMotion } from '../lib/animation-utils'
 import GsapAmbient from './visuals/GsapAmbient'
 

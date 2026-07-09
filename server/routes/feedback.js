@@ -1,5 +1,6 @@
 const express = require('express')
 const Feedback = require('../models/Feedback')
+const { isValidEmail, normalizeEmail, safeTrim } = require('../utils/validation')
 
 const router = express.Router()
 
@@ -8,10 +9,16 @@ const router = express.Router()
 // @access  Public
 router.post('/', async (req, res) => {
   try {
-    const { name, email, description } = req.body
+    const name = safeTrim(req.body.name)
+    const email = normalizeEmail(req.body.email)
+    const description = safeTrim(req.body.description)
 
     if (!name || !email || !description) {
       return res.status(400).json({ message: 'Please provide all required fields (name, email, description)' })
+    }
+
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ message: 'Please provide a valid email address.' })
     }
 
     const feedback = await Feedback.create({

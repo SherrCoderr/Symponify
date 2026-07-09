@@ -3,24 +3,6 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import useViewport from '../hooks/useViewport'
 import { useTheme } from '../context/ThemeContext'
 
-const notifications = [
-  {
-    title: 'Upload complete',
-    copy: 'Your latest song is ready to play from the library.',
-    time: 'Just now',
-  },
-  {
-    title: 'New mix available',
-    copy: 'Fresh evening recommendations have been added for you.',
-    time: '12 min ago',
-  },
-  {
-    title: 'Liked songs updated',
-    copy: 'Your favorites are synced and ready across the player.',
-    time: 'Today',
-  },
-]
-
 const Icon = ({ name, size = 20, style: extraStyle }) => (
   <span className="material-symbols-rounded" style={{ fontSize: size, lineHeight: 1, ...extraStyle }}>{name}</span>
 )
@@ -88,91 +70,11 @@ const styles = {
     color: 'var(--text)',
     position: 'relative',
   },
-  dot: {
-    position: 'absolute',
-    top: '10px',
-    right: '11px',
-    width: '8px',
-    height: '8px',
-    borderRadius: '50%',
-    background: 'var(--accent)',
-  },
-  overlay: {
-    position: 'fixed',
-    inset: 0,
-    background: 'var(--overlay)',
-    zIndex: 20,
-  },
-  panel: {
-    position: 'fixed',
-    top: '18px',
-    right: '18px',
-    width: 'min(360px, calc(100vw - 24px))',
-    maxHeight: 'calc(100vh - 36px)',
-    background: 'var(--surface-glass-strong)',
-    border: '1px solid var(--line)',
-    borderRadius: '28px',
-    boxShadow: 'var(--shadow)',
-    backdropFilter: 'blur(16px)',
-    zIndex: 30,
-    overflow: 'hidden',
-  },
-  panelHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '18px 18px 14px',
-    borderBottom: '1px solid var(--line)',
-  },
-  panelTitle: {
-    fontSize: '18px',
-    fontWeight: 800,
-  },
-  closeButton: {
-    width: '36px',
-    height: '36px',
-    borderRadius: '50%',
-    display: 'grid',
-    placeItems: 'center',
-    background: 'var(--surface-2)',
-    cursor: 'pointer',
-    color: 'var(--text-2)',
-  },
-  panelBody: {
-    padding: '8px 12px 12px',
-    display: 'grid',
-    gap: '10px',
-  },
-  item: {
-    padding: '14px',
-    borderRadius: '20px',
-    background: 'var(--card-bg)',
-    border: '1px solid var(--line)',
-  },
-  itemTitle: {
-    fontSize: '14px',
-    fontWeight: 800,
-    marginBottom: '6px',
-  },
-  itemCopy: {
-    fontSize: '13px',
-    color: 'var(--text-2)',
-    lineHeight: 1.5,
-  },
-  itemTime: {
-    fontSize: '11px',
-    color: 'var(--text-3)',
-    marginTop: '10px',
-    textTransform: 'uppercase',
-    letterSpacing: '0.08em',
-    fontWeight: 700,
-  },
 }
 
 export default function Navbar({ showMenuButton = false, onMenuToggle }) {
   const navigate = useNavigate()
   const location = useLocation()
-  const [showNotifications, setShowNotifications] = useState(false)
   const [searchValue, setSearchValue] = useState('')
   const { isDark, toggleTheme } = useTheme()
   const { isXs, isMobile, isTabletOrBelow } = useViewport()
@@ -214,14 +116,6 @@ export default function Navbar({ showMenuButton = false, onMenuToggle }) {
       width: isTabletOrBelow ? '100%' : 'auto',
       order: isTabletOrBelow ? 3 : 0,
     },
-    panel: {
-      ...styles.panel,
-      top: isMobile ? '12px' : styles.panel.top,
-      right: isMobile ? '12px' : styles.panel.right,
-      width: isMobile ? 'calc(100vw - 24px)' : styles.panel.width,
-      maxHeight: isMobile ? 'calc(100dvh - 24px)' : styles.panel.maxHeight,
-      borderRadius: isMobile ? '24px' : styles.panel.borderRadius,
-    },
   }
 
   return (
@@ -257,35 +151,8 @@ export default function Navbar({ showMenuButton = false, onMenuToggle }) {
           <button type="button" style={{ ...styles.iconBtn, width: isXs ? '42px' : styles.iconBtn.width, height: isXs ? '42px' : styles.iconBtn.height }} aria-label="Toggle dark mode" onClick={toggleTheme}>
             <Icon name={isDark ? 'light_mode' : 'dark_mode'} size={20} />
           </button>
-          <button type="button" style={{ ...styles.iconBtn, width: isXs ? '42px' : styles.iconBtn.width, height: isXs ? '42px' : styles.iconBtn.height }} aria-label="Notifications" onClick={() => setShowNotifications(true)}>
-            <Icon name="notifications" size={20} />
-            <span style={styles.dot} />
-          </button>
         </div>
       </header>
-
-      {showNotifications ? (
-        <>
-          <button type="button" aria-label="Close notifications" style={styles.overlay} onClick={() => setShowNotifications(false)} />
-          <aside style={computedStyles.panel}>
-            <div style={styles.panelHeader}>
-              <div style={styles.panelTitle}>Notifications</div>
-              <button type="button" style={styles.closeButton} onClick={() => setShowNotifications(false)} aria-label="Close notification panel">
-                <Icon name="close" size={20} />
-              </button>
-            </div>
-            <div style={styles.panelBody}>
-              {notifications.map((item) => (
-                <div key={`${item.title}-${item.time}`} style={styles.item}>
-                  <div style={styles.itemTitle}>{item.title}</div>
-                  <div style={styles.itemCopy}>{item.copy}</div>
-                  <div style={styles.itemTime}>{item.time}</div>
-                </div>
-              ))}
-            </div>
-          </aside>
-        </>
-      ) : null}
     </>
   )
 }

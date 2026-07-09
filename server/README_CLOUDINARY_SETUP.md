@@ -41,7 +41,7 @@ Cloudinary addresses all of these issues:
 ✅ **Persistent Storage**: Files remain forever unless explicitly deleted
 ✅ **Automatic CDN**: Files are cached globally for fast streaming
 ✅ **Reliability**: Built-in redundancy and disaster recovery
-✅ **Easy Integration**: Simple Multer adapter (`multer-storage-cloudinary`)
+✅ **Easy Integration**: Direct Multer stream uploads to Cloudinary
 ✅ **Admin Dashboard**: Manage, preview, and delete files easily
 ✅ **Scalability**: Works seamlessly with multiple server instances
 
@@ -116,18 +116,18 @@ The Multer upload middleware is in `server/middleware/upload.js`:
 **Configuration:**
 
 ```javascript
-const storage = new CloudinaryStorage({
-  cloudinary,
-  params: async (req, file) => {
-    return {
-      folder: 'symponify/audio' or 'symponify/covers', // Organized folders
-      public_id: `${title}-${type}-${timestamp}`, // Unique ID
-      resource_type: 'auto', // Auto-detect type
-      unique_filename: true, // Prevent overwrites
-      overwrite: false,
-    }
+const upload = cloudinary.uploader.upload_stream(
+  {
+    folder: 'symponify/audio' or 'symponify/covers',
+    public_id: `${title}-${type}-${timestamp}`,
+    resource_type: 'auto',
+    unique_filename: true,
+    overwrite: false,
   },
-})
+  callback
+)
+
+file.stream.pipe(upload)
 ```
 
 **File Size Limits:**
@@ -276,14 +276,15 @@ When deploying to Render:
 The frontend needs no changes. Cloudinary URLs are already HTTPS and globally cached.
 
 **Note on Vercel rewrites** (`client/vercel.json`):
-- Remove the `/songs/*` rewrite (no longer needed)
 - Keep the `/api/*` rewrite for API calls
+- Keep the `/songs/*` rewrite for legacy local media fallback paths
 
-Example `vercel.json` after migration:
+Example `vercel.json`:
 ```json
 {
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "https://your-render-url.com/api/$1" }
+    { "source": "/api/(.*)", "destination": "https://your-render-url.com/api/$1" },
+    { "source": "/songs/(.*)", "destination": "https://your-render-url.com/songs/$1" }
   ]
 }
 ```

@@ -309,6 +309,15 @@ export default function ManageSongs() {
 
   const token = localStorage.getItem('token')
 
+  const requireToken = () => {
+    if (token) return true
+
+    const errorMsg = 'Your admin session has expired. Please sign in again.'
+    setMessage({ text: errorMsg, type: 'error' })
+    showError(errorMsg)
+    return false
+  }
+
   const loadData = async (preferredAlbum = '') => {
     try {
       setLoading(true)
@@ -373,6 +382,8 @@ export default function ManageSongs() {
   }
 
   const saveSong = async (songId) => {
+    if (!requireToken()) return
+
     try {
       const updatedSong = await adminSongsService.update(songId, editForm, token)
       await loadData(updatedSong?.album || selectedAlbum)
@@ -389,6 +400,8 @@ export default function ManageSongs() {
   }
 
   const deleteSong = async (songId) => {
+    if (!requireToken()) return
+
     try {
       await adminSongsService.delete(songId, token)
       await loadData(selectedAlbum)
@@ -407,6 +420,8 @@ export default function ManageSongs() {
   }
 
   const createAlbum = async () => {
+    if (!requireToken()) return
+
     const title = createAlbumForm.title.trim()
     if (!title) {
       const msg = 'Album name is required.'
@@ -440,6 +455,10 @@ export default function ManageSongs() {
   const changeAlbumCover = async (event) => {
     const file = event.target.files?.[0]
     if (!file || !selectedAlbum) return
+    if (!requireToken()) {
+      event.target.value = ''
+      return
+    }
 
     try {
       setChangingAlbumCover(true)
@@ -465,6 +484,8 @@ export default function ManageSongs() {
   }
 
   const renameAlbum = async () => {
+    if (!requireToken()) return
+
     const nextAlbum = albumNameDraft.trim()
     if (!selectedAlbum || !nextAlbum || nextAlbum === selectedAlbum) return
 
@@ -487,6 +508,11 @@ export default function ManageSongs() {
   const replaceSongMedia = async (songId, songTitle, event, field) => {
     const file = event.target.files?.[0]
     if (!file) return
+    if (!requireToken()) {
+      event.target.value = ''
+      return
+    }
+
     if (!file.size) {
       setMessage({ text: 'The selected file is empty. Choose a valid media file.', type: 'error' })
       event.target.value = ''
@@ -798,7 +824,7 @@ export default function ManageSongs() {
                 })}
               </div>
             ) : (
-              <div style={styles.empty}>This album does not have any songs yet. Use `Add Song` to add tracks and `Change Cover` to upload artwork later.</div>
+              <div style={styles.empty}>This album does not have any songs yet. Use Add Song to add tracks and Change Cover to upload artwork later.</div>
             )
           ) : (
             <div style={styles.empty}>Select an album from the left or create a new one. After that, you can rename it, update the cover, and manage songs here.</div>
@@ -812,7 +838,7 @@ export default function ManageSongs() {
           <div style={styles.modal}>
             <div style={styles.modalTitle}>Delete Song?</div>
             <p style={styles.modalCopy}>
-              Are you sure you want to permanently remove `{songPendingDelete.title}`? This action cannot be undone.
+              Are you sure you want to permanently remove {songPendingDelete.title}? This action cannot be undone.
             </p>
             <div style={styles.modalActions}>
               <button type="button" style={styles.controlButton} onClick={() => setSongPendingDelete(null)}>

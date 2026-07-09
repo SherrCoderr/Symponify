@@ -6,15 +6,12 @@ const connectDB = async () => {
     if (!mongoUri) {
       throw new Error('MONGO_URI environment variable is not set')
     }
-    
-    await mongoose.connect(mongoUri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    })
-    
-    console.log('✓ MongoDB connected successfully')
+
+    await mongoose.connect(mongoUri)
+
+    console.log('MongoDB connected successfully')
   } catch (error) {
-    console.error('✗ MongoDB connection error:', error.message)
+    console.error('MongoDB connection error:', error.message)
     process.exit(1)
   }
 }

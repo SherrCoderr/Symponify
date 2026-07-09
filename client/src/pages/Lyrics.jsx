@@ -1,7 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useEffect, useRef } from 'react'
+import { motion } from 'framer-motion'
 import { usePlayer } from '../context/PlayerContext'
 import CoverArt from '../components/CoverArt'
+import useViewport from '../hooks/useViewport'
 
 
 const parseLyrics = (song) => {
@@ -35,7 +36,8 @@ const parseLyrics = (song) => {
 }
 
 export default function Lyrics() {
-  const { currentTrack, isPlaying, progress } = usePlayer()
+  const { currentTrack, progress } = usePlayer()
+  const { isMobile, isTabletOrBelow } = useViewport()
   const scrollRef = useRef(null)
 
   // Find current active lyric line
@@ -62,31 +64,36 @@ export default function Lyrics() {
   if (!currentTrack) {
     return (
       <div style={styles.container}>
-        <div style={styles.empty}>Play a song to see synced lyrics!</div>
+        <div style={styles.empty}>Play a song to see lyrics here.</div>
       </div>
     )
   }
 
   return (
     <div style={styles.container} className="scrollbar-hidden">
-      {/* Blurred background cover art */}
-      <div style={styles.bgWrapper}>
-        <img src={currentTrack.coverUrl} alt="Background" style={styles.bgImage} />
-        <div style={styles.bgOverlay} />
-      </div>
+      {currentTrack.coverUrl ? (
+        <div style={styles.bgWrapper}>
+          <img src={currentTrack.coverUrl} alt="" style={styles.bgImage} />
+          <div style={styles.bgOverlay} />
+        </div>
+      ) : (
+        <div style={{ ...styles.bgWrapper, background: currentTrack.color || 'linear-gradient(135deg, #1a1a18, #333)' }}>
+          <div style={styles.bgOverlay} />
+        </div>
+      )}
 
-      <div style={styles.content}>
-        <div style={styles.header}>
+      <div style={{ ...styles.content, padding: isMobile ? '20px' : isTabletOrBelow ? '28px' : styles.content.padding }}>
+        <div style={{ ...styles.header, gap: isMobile ? '14px' : styles.header.gap, marginBottom: isMobile ? '24px' : styles.header.marginBottom }}>
           <CoverArt
             src={currentTrack.coverUrl}
             alt={currentTrack.title}
-            containerStyle={styles.cover}
+            containerStyle={{ ...styles.cover, width: isMobile ? '72px' : styles.cover.width, height: isMobile ? '72px' : styles.cover.height }}
             imgStyle={styles.coverImage}
             fallback={currentTrack.emoji}
           />
           <div style={styles.info}>
-            <h1 style={styles.title}>{currentTrack.title}</h1>
-            <p style={styles.artist}>{currentTrack.artist}</p>
+            <h1 style={{ ...styles.title, fontSize: isMobile ? '26px' : styles.title.fontSize }}>{currentTrack.title}</h1>
+            <p style={{ ...styles.artist, fontSize: isMobile ? '16px' : styles.artist.fontSize }}>{currentTrack.artist}</p>
           </div>
         </div>
 

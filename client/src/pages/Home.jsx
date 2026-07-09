@@ -278,8 +278,8 @@ export default function Home() {
   }, [songs])
 
   const heroStats = [
-    { value: songs.length || '—', label: 'Tracks' },
-    { value: albums.length || '—', label: 'Albums' },
+    { value: songs.length || '--', label: 'Tracks' },
+    { value: albums.length || '--', label: 'Albums' },
     { value: topGenre, label: 'Top mood' },
   ]
 

@@ -1,6 +1,8 @@
 const { v2: cloudinary } = require('cloudinary')
 const path = require('path')
 
+const isProduction = process.env.NODE_ENV === 'production'
+
 /**
  * Retrieves Cloudinary configuration from environment variables.
  * @returns {Object} Cloudinary config object
@@ -31,7 +33,8 @@ if (hasCloudinaryConfig()) {
   })
   console.log(`[Cloudinary] Configured with cloud_name: ${process.env.CLOUDINARY_CLOUD_NAME}`)
 } else {
-  console.warn('[Cloudinary] Not configured - uploads will fail. Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET.')
+  const modeMessage = isProduction ? 'production uploads will be rejected' : 'uploads will use local development storage'
+  console.warn(`[Cloudinary] Not configured - ${modeMessage}. Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET.`)
 }
 
 /**
@@ -52,7 +55,7 @@ const ensureCloudinaryConfigured = () => {
  * @param {Object} file - Multer file object from Cloudinary
  * @returns {string} Cloudinary secure URL for the asset
  */
-const getUploadedFileUrl = (file) => file?.secure_url || file?.path || ''
+const getUploadedFileUrl = (file) => getUploadedFileUrlNormalized(file)
 
 /**
  * Extracts the public ID from an uploaded file object.
@@ -134,4 +137,3 @@ module.exports = {
   getUploadedFileUrl,
   hasCloudinaryConfig,
 }
-

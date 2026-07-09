@@ -1,9 +1,10 @@
 const path = require('path')
 const fs = require('fs')
 const multer = require('multer')
-const { CloudinaryStorage } = require('multer-storage-cloudinary')
 const { cloudinary, ensureCloudinaryConfigured, hasCloudinaryConfig } = require('../config/cloudinary')
 const { sanitizeSongTitle } = require('../utils/validation')
+
+const isProduction = process.env.NODE_ENV === 'production'
 
 /**
  * Determines the folder path in Cloudinary based on the file type.
@@ -23,26 +24,59 @@ const getUploadFolder = (file) => {
 let storage
 
 if (hasCloudinaryConfig()) {
-  storage = new CloudinaryStorage({
-    cloudinary,
-    params: async (req, file) => {
+  storage = {
+    _handleFile: (req, file, cb) => {
       ensureCloudinaryConfigured()
 
       const title = sanitizeSongTitle(req.body.title || 'untitled')
       const suffix = file.fieldname === 'audio' ? 'audio' : 'cover'
+      const upload = cloudinary.uploader.upload_stream(
+        {
+          folder: getUploadFolder(file),
+          public_id: `${title}-${suffix}-${Date.now()}`,
+          resource_type: 'auto',
+          use_filename: false,
+          unique_filename: true,
+          overwrite: false,
+        },
+        (error, result) => {
+          if (error) {
+            cb(error)
+            return
+          }
 
-      return {
-        folder: getUploadFolder(file),
-        // Public ID format: {title}-{type}-{timestamp} for uniqueness
-        public_id: `${title}-${suffix}-${Date.now()}`,
-        // Use 'auto' for audio files to automatically detect format
-        resource_type: 'auto',
-        use_filename: false,
-        unique_filename: true,
-        overwrite: false,
-      }
+          cb(null, {
+            path: result.secure_url,
+            secure_url: result.secure_url,
+            filename: result.public_id,
+            public_id: result.public_id,
+            resource_type: result.resource_type,
+            bytes: result.bytes,
+            format: result.format,
+          })
+        }
+      )
+
+      file.stream.pipe(upload)
     },
-  })
+    _removeFile: (_req, file, cb) => {
+      if (!file?.public_id) {
+        cb(null)
+        return
+      }
+
+      cloudinary.uploader.destroy(file.public_id, { resource_type: file.resource_type || 'image' }).finally(() => cb(null))
+    },
+  }
+} else if (isProduction) {
+  storage = {
+    _handleFile: (_req, _file, cb) => {
+      const error = new Error('Cloudinary is required for production uploads.')
+      error.status = 500
+      cb(error)
+    },
+    _removeFile: (_req, _file, cb) => cb(null),
+  }
 } else {
   // Fallback to local disk storage for development when Cloudinary is not configured
   const localRoot = path.join(__dirname, '../public/songs')
@@ -106,4 +140,3 @@ module.exports = multer({
   fileFilter,
   limits: { fileSize: 50 * 1024 * 1024 }, // 50 MB limit
 })
-

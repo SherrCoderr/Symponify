@@ -1,6 +1,5 @@
 import api from './api'
 
-
 export const authService = {
   login: async (email, password) => {
     const { data } = await api.post('/api/auth/login', { email, password })
@@ -145,12 +144,6 @@ export const adminSongsService = {
     return data
   },
 
-  getAll: async (token) => {
-    const { data } = await api.get('/api/songs/admin/all', {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    })
-    return data
-  },
 }
 
 // ============================================

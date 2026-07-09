@@ -5,8 +5,9 @@ const Song = require('../models/Song')
 const User = require('../models/User')
 const upload = require('../middleware/upload')
 const authMiddleware = require('../middleware/authMiddleware')
+const { requireAdmin } = require('../middleware/authMiddleware')
 const { deleteCloudinaryAsset, getUploadedFilePublicId, getUploadedFileUrl } = require('../config/cloudinary')
-const { normalizeMediaUrl, withMediaFlags } = require('../utils/media')
+const { isValidMediaUrl, normalizeMediaUrl, withMediaFlags } = require('../utils/media')
 const { escapeRegex, safeTrim } = require('../utils/validation')
 
 const isValidObjectId = (value) => mongoose.Types.ObjectId.isValid(value)
@@ -167,10 +168,8 @@ router.post('/like/:id', authMiddleware, async (req, res) => {
   }
 })
 
-router.post('/albums', authMiddleware, upload.single('cover'), async (req, res) => {
+router.post('/albums', authMiddleware, requireAdmin, upload.single('cover'), async (req, res) => {
   try {
-    if (!req.user?.isAdmin) return res.status(403).json({ message: 'Only admins can create albums.' })
-
     const title = safeTrim(req.body.title)
     const artist = safeTrim(req.body.artist)
     if (!title) return res.status(400).json({ message: 'Album name is required.' })
@@ -206,20 +205,28 @@ router.post('/albums', authMiddleware, upload.single('cover'), async (req, res) 
   }
 })
 
-router.post('/add', authMiddleware, async (req, res) => {
+router.post('/add', authMiddleware, requireAdmin, async (req, res) => {
   try {
-    if (!req.user?.isAdmin) return res.status(403).json({ message: 'Only admins can add songs.' })
-
     const payload = normalizeSongInput(req.body)
     if (!payload.title || !payload.artist) {
       return res.status(400).json({ message: 'Title and artist are required.' })
     }
 
+    const audioUrl = safeTrim(req.body.audioUrl)
+    const coverUrl = safeTrim(req.body.coverUrl)
+    if (!isValidMediaUrl(audioUrl)) {
+      return res.status(400).json({ message: 'A valid audioUrl is required.' })
+    }
+
+    if (coverUrl && !isValidMediaUrl(coverUrl)) {
+      return res.status(400).json({ message: 'coverUrl must be a valid http(s) URL or /songs path.' })
+    }
+
     const song = await Song.create({
       ...payload,
-      coverUrl: safeTrim(req.body.coverUrl),
+      coverUrl,
       coverPublicId: safeTrim(req.body.coverPublicId),
-      audioUrl: safeTrim(req.body.audioUrl),
+      audioUrl,
       audioPublicId: safeTrim(req.body.audioPublicId),
       likes: Math.max(0, Number(req.body.likes) || 0),
     })
@@ -242,14 +249,13 @@ router.post('/add', authMiddleware, async (req, res) => {
 router.post(
   '/upload',
   authMiddleware,
+  requireAdmin,
   upload.fields([
     { name: 'audio', maxCount: 1 },
     { name: 'cover', maxCount: 1 },
   ]),
   async (req, res) => {
     try {
-      if (!req.user?.isAdmin) return res.status(403).json({ message: 'Only admins can upload songs.' })
-
       const payload = normalizeSongInput(req.body)
       if (!payload.title || !payload.artist) {
         return res.status(400).json({ message: 'Title and artist are required.' })
@@ -290,13 +296,13 @@ router.post(
 router.put(
   '/:id/media',
   authMiddleware,
+  requireAdmin,
   upload.fields([
     { name: 'audio', maxCount: 1 },
     { name: 'cover', maxCount: 1 },
   ]),
   async (req, res) => {
     try {
-      if (!req.user?.isAdmin) return res.status(403).json({ message: 'Only admins can update media.' })
       if (!isValidObjectId(req.params.id)) return res.status(400).json({ message: 'Invalid song id.' })
 
       const song = await Song.findById(req.params.id)
@@ -345,10 +351,8 @@ router.put(
   }
 )
 
-router.post('/albums/:album/cover', authMiddleware, upload.single('cover'), async (req, res) => {
+router.post('/albums/:album/cover', authMiddleware, requireAdmin, upload.single('cover'), async (req, res) => {
   try {
-    if (!req.user?.isAdmin) return res.status(403).json({ message: 'Only admins can update album cover.' })
-
     const albumName = decodeURIComponent(req.params.album)
     if (!req.file) return res.status(400).json({ message: 'Cover image is required.' })
 
@@ -387,10 +391,8 @@ router.post('/albums/:album/cover', authMiddleware, upload.single('cover'), asyn
   }
 })
 
-router.put('/albums/:album', authMiddleware, async (req, res) => {
+router.put('/albums/:album', authMiddleware, requireAdmin, async (req, res) => {
   try {
-    if (!req.user?.isAdmin) return res.status(403).json({ message: 'Only admins can rename albums.' })
-
     const currentAlbum = decodeURIComponent(req.params.album)
     const nextAlbum = safeTrim(req.body.album)
     if (!nextAlbum) return res.status(400).json({ message: 'New album name is required.' })
@@ -427,9 +429,8 @@ router.put('/albums/:album', authMiddleware, async (req, res) => {
   }
 })
 
-router.put('/:id', authMiddleware, async (req, res) => {
+router.put('/:id', authMiddleware, requireAdmin, async (req, res) => {
   try {
-    if (!req.user?.isAdmin) return res.status(403).json({ message: 'Only admins can update songs.' })
     if (!isValidObjectId(req.params.id)) return res.status(400).json({ message: 'Invalid song id.' })
 
     const song = await Song.findById(req.params.id)
@@ -473,9 +474,8 @@ router.put('/:id', authMiddleware, async (req, res) => {
   }
 })
 
-router.delete('/:id', authMiddleware, async (req, res) => {
+router.delete('/:id', authMiddleware, requireAdmin, async (req, res) => {
   try {
-    if (!req.user?.isAdmin) return res.status(403).json({ message: 'Only admins can delete songs.' })
     if (!isValidObjectId(req.params.id)) return res.status(400).json({ message: 'Invalid song id.' })
 
     const song = await Song.findById(req.params.id)
