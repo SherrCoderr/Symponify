@@ -189,22 +189,22 @@ export default function PlayerBar() {
       ...styles.bar,
       gridColumn: isCompact ? 'auto' : styles.bar.gridColumn,
       position: isCompact ? 'fixed' : 'relative',
-      left: isCompact ? (isMobile ? '8px' : '12px') : 'auto',
-      right: isCompact ? (isMobile ? '8px' : '12px') : 'auto',
-      bottom: isCompact ? 'calc(env(safe-area-inset-bottom, 0px) + 8px)' : 'auto',
-      width: isCompact ? (isMobile ? 'calc(100dvw - 16px)' : 'calc(100dvw - 24px)') : 'auto',
+      left: isCompact ? '12px' : 'auto',
+      right: isCompact ? '12px' : 'auto',
+      bottom: isCompact ? '0' : 'auto',
+      width: isCompact ? 'calc(100dvw - 24px)' : 'auto',
+      maxWidth: isCompact ? 'calc(100% - 24px)' : undefined,
       zIndex: isCompact ? 45 : 'auto',
       display: isCompact ? 'flex' : 'grid',
       flexDirection: isCompact ? 'column' : undefined,
       gridTemplateColumns: isCompact ? undefined : styles.bar.gridTemplateColumns,
-      gap: isCompact ? (isMobile ? '6px' : '10px') : styles.bar.gap,
-      padding: isMobile ? '8px 10px' : isTabletOrBelow ? '12px 14px' : styles.bar.padding,
-      borderRadius: isMobile ? '16px' : isTabletOrBelow ? '20px' : styles.bar.borderRadius,
+      gap: isCompact ? (isMobile ? '8px' : '10px') : styles.bar.gap,
+      padding: isCompact ? '10px 12px calc(12px + env(safe-area-inset-bottom, 0px))' : styles.bar.padding,
+      borderRadius: isCompact ? '20px 20px 0 0' : styles.bar.borderRadius,
       alignItems: isCompact ? 'stretch' : styles.bar.alignItems,
       minWidth: 0,
       boxSizing: 'border-box',
-      maxHeight: isMobile ? '124px' : undefined,
-      overflow: isMobile ? 'hidden' : undefined,
+      overflow: 'visible',
     },
     left: {
       ...styles.left,
@@ -222,13 +222,14 @@ export default function PlayerBar() {
     controls: {
       ...styles.controls,
       justifyContent: 'center',
-      flexWrap: 'wrap',
-      gap: isMobile ? '8px' : styles.controls.gap,
+      flexWrap: 'nowrap',
+      gap: isCompact ? (isMobile ? '12px' : '16px') : styles.controls.gap,
+      width: isCompact ? '100%' : 'auto',
     },
     progressRow: {
       ...styles.progressRow,
-      gridTemplateColumns: isTabletOrBelow ? '44px minmax(0, 1fr) 44px' : styles.progressRow.gridTemplateColumns,
-      gap: isMobile ? '6px' : isTabletOrBelow ? '8px' : styles.progressRow.gap,
+      gridTemplateColumns: isCompact ? '44px minmax(0, 1fr) 44px' : styles.progressRow.gridTemplateColumns,
+      gap: isCompact ? '8px' : styles.progressRow.gap,
     },
     progressRange: {
       ...styles.progressRange,
@@ -236,7 +237,7 @@ export default function PlayerBar() {
     },
     right: {
       ...styles.right,
-      display: isMobile ? 'none' : styles.right.display,
+      display: isCompact ? 'none' : styles.right.display,
       justifyContent: isCompact ? 'space-between' : styles.right.justifyContent,
       width: isCompact ? '100%' : 'auto',
       flexWrap: isMobile ? 'wrap' : 'nowrap',
@@ -246,6 +247,7 @@ export default function PlayerBar() {
     leftMeta: {
       minWidth: 0,
       flex: 1,
+      overflow: 'hidden',
     },
     volume: {
       ...styles.volume,
@@ -263,48 +265,48 @@ export default function PlayerBar() {
           alt={`${track.title} cover`}
           containerStyle={{
             ...styles.cover,
-            width: isMobile ? '42px' : styles.cover.width,
-            height: isMobile ? '42px' : styles.cover.height,
-            borderRadius: isMobile ? '12px' : styles.cover.borderRadius,
+            width: isCompact ? '44px' : styles.cover.width,
+            height: isCompact ? '44px' : styles.cover.height,
+            borderRadius: isCompact ? '14px' : styles.cover.borderRadius,
             background: track.coverUrl ? 'var(--surface-2)' : track.color || 'linear-gradient(135deg, #ff5c35, #f0a500)',
           }}
           imgStyle={styles.coverImage}
-          fallback={<SvgIcon name="disc" size={isMobile ? 20 : 24} />}
+          fallback={<SvgIcon name="disc" size={isCompact ? 20 : 24} />}
         />
         <div style={computedStyles.leftMeta}>
-          <div style={{ ...styles.title, fontSize: isMobile ? '13px' : styles.title.fontSize }}>{track.title}</div>
-          <div style={{ ...styles.artist, marginTop: isMobile ? '2px' : styles.artist.marginTop }}>{track.artist}</div>
+          <div style={{ ...styles.title, fontSize: isCompact ? '13px' : styles.title.fontSize, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.title}</div>
+          <div style={{ ...styles.artist, marginTop: isCompact ? '2px' : styles.artist.marginTop, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.artist}</div>
           {playbackError ? <div style={{ ...styles.artist, color: '#c54d2b' }}>{playbackError}</div> : null}
         </div>
-        <button style={{ ...styles.iconButton, width: isMobile ? '34px' : styles.iconButton.width, height: isMobile ? '34px' : styles.iconButton.height, color: liked ? '#c9184a' : 'var(--text-2)' }} onClick={() => toggleLike(track)} aria-label="Like current track">
-          <Icon name="favorite" fill={liked} />
+        <button style={{ ...styles.iconButton, width: isCompact ? '40px' : styles.iconButton.width, height: isCompact ? '40px' : styles.iconButton.height, color: liked ? '#c9184a' : 'var(--text-2)' }} onClick={() => toggleLike(track)} aria-label="Like current track">
+          <Icon name="favorite" fill={liked} size={isCompact ? 20 : 20} />
         </button>
       </div>
 
       <div style={computedStyles.center}>
         <div style={computedStyles.controls}>
-          <button style={{ ...styles.iconButton, width: isMobile ? '32px' : styles.iconButton.width, height: isMobile ? '32px' : styles.iconButton.height, color: shuffle ? 'var(--accent)' : styles.iconButton.color }} aria-label="Shuffle" onClick={toggleShuffle}>
-            <Icon name="shuffle" />
+          <button style={{ ...styles.iconButton, width: isCompact ? '40px' : styles.iconButton.width, height: isCompact ? '40px' : styles.iconButton.height, color: shuffle ? 'var(--accent)' : styles.iconButton.color }} aria-label="Shuffle" onClick={toggleShuffle}>
+            <Icon name="shuffle" size={isCompact ? 20 : 20} />
           </button>
-          <button style={{ ...styles.iconButton, width: isMobile ? '32px' : styles.iconButton.width, height: isMobile ? '32px' : styles.iconButton.height }} aria-label="Previous track" onClick={playPrevious}>
-            <Icon name="skip_previous" />
+          <button style={{ ...styles.iconButton, width: isCompact ? '40px' : styles.iconButton.width, height: isCompact ? '40px' : styles.iconButton.height }} aria-label="Previous track" onClick={playPrevious}>
+            <Icon name="skip_previous" size={isCompact ? 22 : 20} />
           </button>
-          <button style={{ ...styles.play, width: isMobile ? '40px' : styles.play.width, height: isMobile ? '40px' : styles.play.height }} onClick={togglePlay} aria-label={isPlaying ? 'Pause' : 'Play'}>
-            {isPlaying ? <Icon name="pause" size={isMobile ? 20 : 24} /> : <Icon name="play_arrow" size={isMobile ? 20 : 24} />}
+          <button style={{ ...styles.play, width: isCompact ? '54px' : styles.play.width, height: isCompact ? '54px' : styles.play.height }} onClick={togglePlay} aria-label={isPlaying ? 'Pause' : 'Play'}>
+            {isPlaying ? <Icon name="pause" size={isCompact ? 26 : 24} /> : <Icon name="play_arrow" size={isCompact ? 26 : 24} />}
           </button>
-          <button style={{ ...styles.iconButton, width: isMobile ? '32px' : styles.iconButton.width, height: isMobile ? '32px' : styles.iconButton.height }} aria-label="Next track" onClick={playNext}>
-            <Icon name="skip_next" />
+          <button style={{ ...styles.iconButton, width: isCompact ? '40px' : styles.iconButton.width, height: isCompact ? '40px' : styles.iconButton.height }} aria-label="Next track" onClick={playNext}>
+            <Icon name="skip_next" size={isCompact ? 22 : 20} />
           </button>
           <button
-            style={{ ...styles.iconButton, width: isMobile ? '32px' : styles.iconButton.width, height: isMobile ? '32px' : styles.iconButton.height, color: repeatMode === 'off' ? styles.iconButton.color : 'var(--accent)' }}
+            style={{ ...styles.iconButton, width: isCompact ? '40px' : styles.iconButton.width, height: isCompact ? '40px' : styles.iconButton.height, color: repeatMode === 'off' ? styles.iconButton.color : 'var(--accent)' }}
             aria-label={`Repeat mode ${repeatMode}`}
             onClick={cycleRepeatMode}
           >
-            <Icon name="repeat" />
+            <Icon name="repeat" size={isCompact ? 20 : 20} />
           </button>
         </div>
         <div style={computedStyles.progressRow}>
-          <span style={{ ...styles.time, fontSize: isMobile ? '10px' : styles.time.fontSize }}>{formatSeconds(activeProgressTime)}</span>
+          <span style={{ ...styles.time, fontSize: isCompact ? '10px' : styles.time.fontSize }}>{formatSeconds(activeProgressTime)}</span>
           <input
             className="player-progress"
             type="range"
@@ -319,7 +321,7 @@ export default function PlayerBar() {
             onTouchEnd={handleSeekCommit}
             aria-label="Song progress"
           />
-          <span style={{ ...styles.time, fontSize: isMobile ? '10px' : styles.time.fontSize }}>{durationLabel || track.duration || formatSeconds(duration)}</span>
+          <span style={{ ...styles.time, fontSize: isCompact ? '10px' : styles.time.fontSize, textAlign: 'right' }}>{durationLabel || track.duration || formatSeconds(duration)}</span>
         </div>
       </div>
 

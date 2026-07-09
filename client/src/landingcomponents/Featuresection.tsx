@@ -1,6 +1,13 @@
 import { useRef } from 'react'
 import { motion, useScroll, useTransform, useInView, useSpring } from 'framer-motion'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useGSAP } from '@gsap/react'
 import { SvgIcon } from '../components/IconBadge'
+import useViewport from '../hooks/useViewport'
+import { useReducedMotion } from '../lib/animation-utils'
+
+gsap.registerPlugin(ScrollTrigger, useGSAP)
 
 const features = [
   { icon: 'headphones', title: 'Immersive Player', desc: 'Silky-smooth player with waveform viz, queue management and keyboard shortcuts — built for audiophiles.', tag: 'Core', color: 'linear-gradient(135deg, #ff5c35, #ff8c6a)' },
@@ -14,14 +21,108 @@ const features = [
 export default function FeaturesSection() {
   const sectionRef = useRef<HTMLElement>(null)
   const titleRef = useRef<HTMLDivElement>(null)
+  const stackRef = useRef<HTMLDivElement>(null)
+  const cardsRef = useRef<HTMLDivElement[]>([])
+  const { isTabletOrBelow } = useViewport()
+  const prefersReducedMotion = useReducedMotion()
   const titleInView = useInView(titleRef, { once: true, margin: '-60px' })
+  const useStaticCards = isTabletOrBelow || prefersReducedMotion
 
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start end', 'end start'] })
   const bgY = useTransform(scrollYProgress, [0, 1], [-60, 60])
   const bgScale = useTransform(scrollYProgress, [0, 0.5, 1], [0.9, 1, 0.95])
 
+  useGSAP(
+    () => {
+      if (useStaticCards || !sectionRef.current || !stackRef.current) return undefined
+
+      const cards = cardsRef.current.filter(Boolean)
+      if (!cards.length) return undefined
+
+      const mm = gsap.matchMedia()
+
+      mm.add('(min-width: 1024px)', () => {
+        gsap.set(cards, {
+          position: 'absolute',
+          inset: 0,
+          transformOrigin: 'center top',
+          willChange: 'transform, opacity, filter',
+        })
+
+        cards.forEach((card, index) => {
+          gsap.set(card, {
+            zIndex: index + 1,
+            y: index === 0 ? 0 : 140 + index * 18,
+            scale: index === 0 ? 1 : 0.96,
+            opacity: index === 0 ? 1 : 0,
+            filter: index === 0 ? 'blur(0px)' : 'blur(10px)',
+          })
+        })
+
+        const tl = gsap.timeline({
+          defaults: { ease: 'power2.out' },
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top top',
+            end: 'bottom bottom',
+            scrub: 0.75,
+            invalidateOnRefresh: true,
+          },
+        })
+
+        for (let activeIndex = 1; activeIndex < cards.length; activeIndex += 1) {
+          const position = activeIndex - 1
+
+          cards.slice(0, activeIndex).forEach((card, previousIndex) => {
+            const depth = activeIndex - previousIndex
+
+            tl.to(
+              card,
+              {
+                y: -depth * 18,
+                scale: Math.max(0.86, 1 - depth * 0.045),
+                opacity: Math.max(0.45, 0.84 - depth * 0.08),
+                filter: `blur(${Math.min(depth * 1.5, 5)}px)`,
+                duration: 1,
+              },
+              position
+            )
+          })
+
+          tl.to(
+            cards[activeIndex],
+            {
+              y: activeIndex * 12,
+              scale: 1,
+              opacity: 1,
+              filter: 'blur(0px)',
+              duration: 1,
+            },
+            position
+          )
+        }
+
+        ScrollTrigger.refresh()
+
+        return () => {
+          tl.scrollTrigger?.kill()
+          tl.kill()
+          gsap.set(cards, { clearProps: 'all' })
+        }
+      })
+
+      return () => mm.revert()
+    },
+    { dependencies: [useStaticCards], scope: sectionRef }
+  )
+
   return (
-    <section id="features" ref={sectionRef} className="landing-reveal py-28 px-4 relative overflow-hidden">
+    <section
+      id="features"
+      ref={sectionRef}
+      className="landing-reveal relative overflow-hidden px-4 py-24 lg:py-28"
+      style={{ minHeight: useStaticCards ? undefined : `${features.length * 80}vh` }}
+    >
       {/* Scroll-zoom background blob */}
       <motion.div
         style={{ y: bgY, scale: bgScale }}
@@ -68,36 +169,72 @@ export default function FeaturesSection() {
           </motion.p>
         </div>
 
-        {/* Cards grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {features.map((f, i) => (
-            <FeatureCard key={f.title} feature={f} index={i} />
-          ))}
-        </div>
+        {useStaticCards ? (
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            {features.map((f, i) => (
+              <FeatureCard key={f.title} feature={f} index={i} mode="static" />
+            ))}
+          </div>
+        ) : (
+          <div className="sticky top-20 mx-auto flex min-h-[620px] max-w-5xl items-center justify-center">
+            <div ref={stackRef} className="relative h-[520px] w-full max-w-4xl">
+              {features.map((f, i) => (
+                <FeatureCard
+                  key={f.title}
+                  feature={f}
+                  index={i}
+                  mode="stack"
+                  setRef={(node) => {
+                    if (node) cardsRef.current[i] = node
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </section>
   )
 }
 
-function FeatureCard({ feature: f, index: i }: { feature: typeof features[0], index: number }) {
+function FeatureCard({
+  feature: f,
+  index: i,
+  mode = 'static',
+  setRef,
+}: {
+  feature: typeof features[0],
+  index: number,
+  mode?: 'static' | 'stack',
+  setRef?: (node: HTMLDivElement | null) => void,
+}) {
   const ref = useRef<HTMLDivElement>(null)
   const inView = useInView(ref, { once: true, margin: '-40px' })
+  const isStack = mode === 'stack'
 
   return (
     <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 60, scale: 0.88, rotateY: -8 }}
-      animate={inView ? { opacity: 1, y: 0, scale: 1, rotateY: 0 } : {}}
-      transition={{ delay: i * 0.09, duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
-      whileHover={{ y: -8, scale: 1.02, rotateY: 2 }}
-      whileTap={{ scale: 0.97 }}
-      className="relative rounded-[28px] p-6 overflow-hidden cursor-pointer"
+      ref={(node) => {
+        ref.current = node
+        setRef?.(node)
+      }}
+      initial={isStack ? false : { opacity: 0, y: 44, scale: 0.96 }}
+      animate={isStack ? undefined : inView ? { opacity: 1, y: 0, scale: 1 } : {}}
+      transition={{ delay: i * 0.08, duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={isStack ? undefined : { y: -6, scale: 1.01 }}
+      whileTap={isStack ? undefined : { scale: 0.98 }}
+      className={`relative overflow-hidden rounded-[28px] border p-6 ${isStack ? 'cursor-default p-8 md:p-10' : 'cursor-pointer'}`}
       style={{
         background: 'rgba(255,255,255,0.75)',
         backdropFilter: 'blur(12px)',
         border: '1px solid var(--line)',
+        boxShadow: isStack ? '0 30px 90px rgba(31,23,9,0.16)' : '0 18px 46px rgba(31,23,9,0.08)',
         transformStyle: 'preserve-3d',
         transition: 'box-shadow 0.3s ease',
+        minHeight: isStack ? '520px' : undefined,
+        display: isStack ? 'flex' : undefined,
+        flexDirection: isStack ? 'column' : undefined,
+        justifyContent: isStack ? 'center' : undefined,
       }}
     >
       {/* Shine sweep on hover */}
@@ -113,12 +250,12 @@ function FeatureCard({ feature: f, index: i }: { feature: typeof features[0], in
       />
 
       <motion.div
-        className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl mb-5"
+        className={`${isStack ? 'mb-8 h-16 w-16 rounded-[22px]' : 'mb-5 h-12 w-12 rounded-2xl'} flex items-center justify-center text-2xl`}
         style={{ background: f.color }}
         whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
         transition={{ duration: 0.5 }}
       >
-        <SvgIcon name={f.icon} size={24} />
+        <SvgIcon name={f.icon} size={isStack ? 30 : 24} />
       </motion.div>
 
       <span className="absolute top-5 right-5 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full"
@@ -126,8 +263,15 @@ function FeatureCard({ feature: f, index: i }: { feature: typeof features[0], in
         {f.tag}
       </span>
 
-      <h3 className="text-lg font-bold mb-2" style={{ color: 'var(--text)' }}>{f.title}</h3>
-      <p className="text-sm leading-relaxed" style={{ color: 'var(--text-2)' }}>{f.desc}</p>
+      <h3
+        className={`${isStack ? 'mb-5 text-4xl md:text-5xl' : 'mb-2 text-lg'} font-bold`}
+        style={{ color: 'var(--text)', fontFamily: isStack ? 'var(--serif)' : undefined, lineHeight: 1.05 }}
+      >
+        {f.title}
+      </h3>
+      <p className={`${isStack ? 'max-w-2xl text-lg leading-8' : 'text-sm leading-relaxed'}`} style={{ color: 'var(--text-2)' }}>
+        {f.desc}
+      </p>
     </motion.div>
   )
 }
