@@ -5,7 +5,7 @@ import CoverArt from './CoverArt'
 import { SvgIcon } from './IconBadge'
 
 const Icon = ({ name, size = 20, style: extraStyle, fill = false }) => (
-  <span className="material-symbols-rounded" style={{ fontSize: size, lineHeight: 1, fontVariationSettings: fill ? "'FILL' 1" : "'FILL' 0", ...extraStyle }}>{name}</span>
+  <SvgIcon name={name} size={size} style={extraStyle} fill={fill ? 'currentColor' : 'none'} />
 )
 
 const formatSeconds = (value) => {
@@ -189,10 +189,10 @@ export default function PlayerBar() {
       ...styles.bar,
       gridColumn: isCompact ? 'auto' : styles.bar.gridColumn,
       position: isCompact ? 'fixed' : 'relative',
-      left: isCompact ? '12px' : 'auto',
-      right: isCompact ? '12px' : 'auto',
+      left: isCompact ? 'max(12px, env(safe-area-inset-left, 0px))' : 'auto',
+      right: isCompact ? 'max(12px, env(safe-area-inset-right, 0px))' : 'auto',
       bottom: isCompact ? '0' : 'auto',
-      width: isCompact ? 'calc(100dvw - 24px)' : 'auto',
+      width: 'auto',
       maxWidth: isCompact ? 'calc(100% - 24px)' : undefined,
       zIndex: isCompact ? 45 : 'auto',
       display: isCompact ? 'flex' : 'grid',
@@ -278,7 +278,7 @@ export default function PlayerBar() {
           <div style={{ ...styles.artist, marginTop: isCompact ? '2px' : styles.artist.marginTop, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.artist}</div>
           {playbackError ? <div style={{ ...styles.artist, color: '#c54d2b' }}>{playbackError}</div> : null}
         </div>
-        <button style={{ ...styles.iconButton, width: isCompact ? '40px' : styles.iconButton.width, height: isCompact ? '40px' : styles.iconButton.height, color: liked ? '#c9184a' : 'var(--text-2)' }} onClick={() => toggleLike(track)} aria-label="Like current track">
+        <button disabled={!currentTrack} style={{ ...styles.iconButton, width: isCompact ? '40px' : styles.iconButton.width, height: isCompact ? '40px' : styles.iconButton.height, color: liked ? '#c9184a' : 'var(--text-2)', opacity: currentTrack ? 1 : 0.45 }} onClick={() => toggleLike(track)} aria-label="Like current track">
           <Icon name="favorite" fill={liked} size={isCompact ? 20 : 20} />
         </button>
       </div>
@@ -291,7 +291,7 @@ export default function PlayerBar() {
           <button style={{ ...styles.iconButton, width: isCompact ? '40px' : styles.iconButton.width, height: isCompact ? '40px' : styles.iconButton.height }} aria-label="Previous track" onClick={playPrevious}>
             <Icon name="skip_previous" size={isCompact ? 22 : 20} />
           </button>
-          <button style={{ ...styles.play, width: isCompact ? '54px' : styles.play.width, height: isCompact ? '54px' : styles.play.height }} onClick={togglePlay} aria-label={isPlaying ? 'Pause' : 'Play'}>
+          <button disabled={!currentTrack} style={{ ...styles.play, width: isCompact ? '54px' : styles.play.width, height: isCompact ? '54px' : styles.play.height, opacity: currentTrack ? 1 : 0.55 }} onClick={togglePlay} aria-label={isPlaying ? 'Pause' : 'Play'}>
             {isPlaying ? <Icon name="pause" size={isCompact ? 26 : 24} /> : <Icon name="play_arrow" size={isCompact ? 26 : 24} />}
           </button>
           <button style={{ ...styles.iconButton, width: isCompact ? '40px' : styles.iconButton.width, height: isCompact ? '40px' : styles.iconButton.height }} aria-label="Next track" onClick={playNext}>

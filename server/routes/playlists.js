@@ -5,6 +5,7 @@ const Song = require('../models/Song')
 const authMiddleware = require('../middleware/authMiddleware')
 const { withMediaFlags } = require('../utils/media')
 const { safeTrim } = require('../utils/validation')
+const { sendError } = require('../utils/http')
 
 const isValidObjectId = (value) => mongoose.Types.ObjectId.isValid(value)
 
@@ -18,7 +19,7 @@ router.get('/', authMiddleware, async (req, res) => {
     const playlists = await Playlist.find({ user: req.user.id }).populate('songs').sort({ createdAt: -1 })
     res.json(playlists.map((playlist) => formatPlaylist(req, playlist)))
   } catch (error) {
-    res.status(500).json({ message: error.message || 'Unable to load playlists.' })
+    sendError(res, error, 'Unable to load playlists.')
   }
 })
 
@@ -40,7 +41,7 @@ router.post('/', authMiddleware, async (req, res) => {
     await playlist.populate('songs')
     res.status(201).json(formatPlaylist(req, playlist))
   } catch (error) {
-    res.status(500).json({ message: error.message || 'Unable to create playlist.' })
+    sendError(res, error, 'Unable to create playlist.')
   }
 })
 
@@ -67,7 +68,7 @@ router.put('/:id', authMiddleware, async (req, res) => {
 
     res.json(formatPlaylist(req, playlist))
   } catch (error) {
-    res.status(500).json({ message: error.message || 'Unable to rename playlist.' })
+    sendError(res, error, 'Unable to rename playlist.')
   }
 })
 
@@ -84,7 +85,7 @@ router.delete('/:id', authMiddleware, async (req, res) => {
 
     res.json({ message: 'Playlist deleted successfully.' })
   } catch (error) {
-    res.status(500).json({ message: error.message || 'Unable to delete playlist.' })
+    sendError(res, error, 'Unable to delete playlist.')
   }
 })
 
@@ -116,7 +117,7 @@ router.post('/:id/songs', authMiddleware, async (req, res) => {
     await playlist.populate('songs')
     res.json(formatPlaylist(req, playlist))
   } catch (error) {
-    res.status(500).json({ message: error.message || 'Unable to add song to playlist.' })
+    sendError(res, error, 'Unable to add song to playlist.')
   }
 })
 
@@ -138,7 +139,7 @@ router.delete('/:id/songs/:songId', authMiddleware, async (req, res) => {
 
     res.json(formatPlaylist(req, playlist))
   } catch (error) {
-    res.status(500).json({ message: error.message || 'Unable to remove song from playlist.' })
+    sendError(res, error, 'Unable to remove song from playlist.')
   }
 })
 

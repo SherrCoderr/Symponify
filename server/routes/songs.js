@@ -9,8 +9,21 @@ const { requireAdmin } = require('../middleware/authMiddleware')
 const { deleteCloudinaryAsset, getUploadedFilePublicId, getUploadedFileUrl } = require('../config/cloudinary')
 const { isValidMediaUrl, normalizeMediaUrl, withMediaFlags } = require('../utils/media')
 const { escapeRegex, safeTrim } = require('../utils/validation')
+const { sendError } = require('../utils/http')
 
 const isValidObjectId = (value) => mongoose.Types.ObjectId.isValid(value)
+
+const cleanupUploadedFiles = async (req) => {
+  const files = [
+    ...(req.files?.audio || []),
+    ...(req.files?.cover || []),
+    ...(req.file ? [req.file] : []),
+  ]
+
+  await Promise.allSettled(
+    files.map((file) => deleteCloudinaryAsset(getUploadedFilePublicId(file)))
+  )
+}
 
 const removeAlbumIfUnused = async (albumTitle) => {
   const normalizedTitle = safeTrim(albumTitle)
@@ -120,7 +133,7 @@ router.get('/', async (req, res) => {
     const songs = await Song.find(query).sort({ createdAt: -1 }).limit(limit).lean()
     res.json(songs.map((song) => withMediaFlags(req, song)))
   } catch (error) {
-    res.status(500).json({ message: error.message || 'Unable to load songs.' })
+    sendError(res, error, 'Unable to load songs.')
   }
 })
 
@@ -129,7 +142,7 @@ router.get('/albums', async (req, res) => {
     const albums = await getAlbumsWithCounts(req)
     res.json(albums)
   } catch (error) {
-    res.status(500).json({ message: error.message || 'Unable to load albums.' })
+    sendError(res, error, 'Unable to load albums.')
   }
 })
 
@@ -140,7 +153,7 @@ router.get('/liked', authMiddleware, async (req, res) => {
 
     res.json(user.likedSongs.map((song) => withMediaFlags(req, song.toObject())))
   } catch (error) {
-    res.status(500).json({ message: error.message || 'Unable to load liked songs.' })
+    sendError(res, error, 'Unable to load liked songs.')
   }
 })
 
@@ -164,18 +177,25 @@ router.post('/like/:id', authMiddleware, async (req, res) => {
 
     res.json({ liked: !alreadyLiked, likedSongs: user.likedSongs })
   } catch (error) {
-    res.status(500).json({ message: error.message || 'Unable to update liked songs.' })
+    sendError(res, error, 'Unable to update liked songs.')
   }
 })
 
 router.post('/albums', authMiddleware, requireAdmin, upload.single('cover'), async (req, res) => {
+  let persisted = false
   try {
     const title = safeTrim(req.body.title)
     const artist = safeTrim(req.body.artist)
-    if (!title) return res.status(400).json({ message: 'Album name is required.' })
+    if (!title) {
+      await cleanupUploadedFiles(req)
+      return res.status(400).json({ message: 'Album name is required.' })
+    }
 
     const [existingAlbum, existingSongs] = await Promise.all([Album.findOne({ title }), Song.exists({ album: title })])
-    if (existingAlbum || existingSongs) return res.status(409).json({ message: 'Album already exists.' })
+    if (existingAlbum || existingSongs) {
+      await cleanupUploadedFiles(req)
+      return res.status(409).json({ message: 'Album already exists.' })
+    }
 
     const coverUrl = req.file ? getUploadedFileUrl(req.file) : ''
     const coverPublicId = req.file ? getUploadedFilePublicId(req.file) : ''
@@ -188,6 +208,7 @@ router.post('/albums', authMiddleware, requireAdmin, upload.single('cover'), asy
       coverUrl,
       coverPublicId,
     })
+    persisted = true
 
     res.status(201).json({
       message: 'Album created successfully.',
@@ -201,7 +222,8 @@ router.post('/albums', authMiddleware, requireAdmin, upload.single('cover'), asy
       },
     })
   } catch (error) {
-    res.status(error.status || 500).json({ message: error.message || 'Album creation failed.' })
+    if (!persisted) await cleanupUploadedFiles(req)
+    sendError(res, error, 'Album creation failed.')
   }
 })
 
@@ -242,7 +264,7 @@ router.post('/add', authMiddleware, requireAdmin, async (req, res) => {
 
     res.status(201).json({ message: 'Song added successfully.', song: withMediaFlags(req, song.toObject()) })
   } catch (error) {
-    res.status(500).json({ message: error.message || 'Song creation failed.' })
+    sendError(res, error, 'Song creation failed.')
   }
 })
 
@@ -255,15 +277,20 @@ router.post(
     { name: 'cover', maxCount: 1 },
   ]),
   async (req, res) => {
+    let persisted = false
     try {
       const payload = normalizeSongInput(req.body)
       if (!payload.title || !payload.artist) {
+        await cleanupUploadedFiles(req)
         return res.status(400).json({ message: 'Title and artist are required.' })
       }
 
       const audioFile = req.files?.audio?.[0]
       const coverFile = req.files?.cover?.[0]
-      if (!audioFile) return res.status(400).json({ message: 'Audio file is required.' })
+      if (!audioFile) {
+        await cleanupUploadedFiles(req)
+        return res.status(400).json({ message: 'Audio file is required.' })
+      }
 
       const existingAlbum = payload.album ? await Album.findOne({ title: payload.album }) : null
       const finalCoverUrl = coverFile ? getUploadedFileUrl(coverFile) : existingAlbum?.coverUrl || ''
@@ -276,6 +303,7 @@ router.post(
         coverUrl: finalCoverUrl,
         coverPublicId: finalCoverPublicId,
       })
+      persisted = true
 
       await syncAlbumRecord({
         title: payload.album,
@@ -288,7 +316,8 @@ router.post(
 
       res.status(201).json({ message: 'Song uploaded successfully.', song: withMediaFlags(req, song.toObject()) })
     } catch (error) {
-      res.status(error.status || 500).json({ message: error.message || 'Song upload failed.' })
+      if (!persisted) await cleanupUploadedFiles(req)
+      sendError(res, error, 'Song upload failed.')
     }
   }
 )
@@ -302,11 +331,18 @@ router.put(
     { name: 'cover', maxCount: 1 },
   ]),
   async (req, res) => {
+    let persisted = false
     try {
-      if (!isValidObjectId(req.params.id)) return res.status(400).json({ message: 'Invalid song id.' })
+      if (!isValidObjectId(req.params.id)) {
+        await cleanupUploadedFiles(req)
+        return res.status(400).json({ message: 'Invalid song id.' })
+      }
 
       const song = await Song.findById(req.params.id)
-      if (!song) return res.status(404).json({ message: 'Song not found.' })
+      if (!song) {
+        await cleanupUploadedFiles(req)
+        return res.status(404).json({ message: 'Song not found.' })
+      }
 
       const audioFile = req.files?.audio?.[0]
       const coverFile = req.files?.cover?.[0]
@@ -338,6 +374,7 @@ router.put(
       }
 
       await song.save()
+      persisted = true
 
       await Promise.all([
         audioFile ? deleteCloudinaryAsset(oldAudioPublicId) : Promise.resolve(),
@@ -346,18 +383,23 @@ router.put(
 
       res.json({ message: 'Song media updated successfully.', song: withMediaFlags(req, song.toObject()) })
     } catch (error) {
-      res.status(error.status || 500).json({ message: error.message || 'Song media update failed.' })
+      if (!persisted) await cleanupUploadedFiles(req)
+      sendError(res, error, 'Song media update failed.')
     }
   }
 )
 
 router.post('/albums/:album/cover', authMiddleware, requireAdmin, upload.single('cover'), async (req, res) => {
+  let persisted = false
   try {
     const albumName = decodeURIComponent(req.params.album)
     if (!req.file) return res.status(400).json({ message: 'Cover image is required.' })
 
     const [existingAlbum, firstSong] = await Promise.all([Album.findOne({ title: albumName }), Song.findOne({ album: albumName })])
-    if (!existingAlbum && !firstSong) return res.status(404).json({ message: 'Album not found.' })
+    if (!existingAlbum && !firstSong) {
+      await cleanupUploadedFiles(req)
+      return res.status(404).json({ message: 'Album not found.' })
+    }
 
     const coverUrl = getUploadedFileUrl(req.file)
     const coverPublicId = getUploadedFilePublicId(req.file)
@@ -380,6 +422,7 @@ router.post('/albums/:album/cover', authMiddleware, requireAdmin, upload.single(
         { upsert: true, new: true }
       ),
     ])
+    persisted = true
 
     if (oldCoverPublicId && oldCoverPublicId !== coverPublicId) {
       await deleteCloudinaryAsset(oldCoverPublicId)
@@ -387,7 +430,8 @@ router.post('/albums/:album/cover', authMiddleware, requireAdmin, upload.single(
 
     res.json({ message: 'Album cover updated successfully.', album: albumName, coverUrl: normalizeMediaUrl(req, coverUrl) })
   } catch (error) {
-    res.status(error.status || 500).json({ message: error.message || 'Album cover update failed.' })
+    if (!persisted) await cleanupUploadedFiles(req)
+    sendError(res, error, 'Album cover update failed.')
   }
 })
 
@@ -425,7 +469,7 @@ router.put('/albums/:album', authMiddleware, requireAdmin, async (req, res) => {
 
     res.json({ message: 'Album renamed successfully.', album: nextAlbum })
   } catch (error) {
-    res.status(500).json({ message: error.message || 'Album rename failed.' })
+    sendError(res, error, 'Album rename failed.')
   }
 })
 
@@ -470,7 +514,7 @@ router.put('/:id', authMiddleware, requireAdmin, async (req, res) => {
 
     res.json({ message: 'Song updated successfully.', song: withMediaFlags(req, song.toObject()) })
   } catch (error) {
-    res.status(500).json({ message: error.message || 'Song update failed.' })
+    sendError(res, error, 'Song update failed.')
   }
 })
 
@@ -496,7 +540,7 @@ router.delete('/:id', authMiddleware, requireAdmin, async (req, res) => {
 
     res.json({ message: 'Song deleted successfully.' })
   } catch (error) {
-    res.status(500).json({ message: error.message || 'Song deletion failed.' })
+    sendError(res, error, 'Song deletion failed.')
   }
 })
 

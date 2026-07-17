@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import Waveform from './Waveform'
 import useViewport from '../hooks/useViewport'
+import api, { getApiErrorMessage } from '../lib/api'
 
 const links = {
   Product: [
@@ -70,20 +71,7 @@ export default function Footer() {
     try {
       setStatus({ loading: true, success: false, error: '' })
       
-      const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'
-      const response = await fetch(`${API_BASE}/api/feedback`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(feedback),
-      })
-
-      const data = await response.json()
-      
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to submit feedback')
-      }
+      await api.post('/api/feedback', feedback)
 
       setStatus({ loading: false, success: true, error: '' })
       setFeedback({ name: '', email: '', description: '' })
@@ -92,7 +80,7 @@ export default function Footer() {
         setStatus(s => ({ ...s, success: false }))
       }, 5000)
     } catch (err) {
-      setStatus({ loading: false, success: false, error: err.message })
+      setStatus({ loading: false, success: false, error: getApiErrorMessage(err, 'Feedback could not be sent. Please try again.') })
     }
   }
 
@@ -237,6 +225,7 @@ export default function Footer() {
               Send Feedback
             </p>
             <form onSubmit={submitFeedback} className="flex flex-col gap-3">
+              <div aria-live="polite">
               {status.success && (
                 <div className="p-3 text-sm rounded-lg" style={{ background: '#f0fff4', color: '#166534', border: '1px solid #86efac' }}>
                   Thank you! Your feedback has been sent.
@@ -247,8 +236,12 @@ export default function Footer() {
                   {status.error}
                 </div>
               )}
+              </div>
               
               <input 
+                aria-label="Your name"
+                name="name"
+                autoComplete="name"
                 type="text" 
                 placeholder="Name" 
                 className="p-3 rounded-lg text-sm outline-none w-full"
@@ -258,7 +251,11 @@ export default function Footer() {
                 required
               />
               <input 
-                type="email" 
+                aria-label="Your email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                spellCheck={false}
                 placeholder="Email address" 
                 className="p-3 rounded-lg text-sm outline-none w-full"
                 style={{ background: 'var(--surface-2)', color: 'var(--text)', border: '1px solid var(--line)' }}
@@ -267,6 +264,9 @@ export default function Footer() {
                 required
               />
               <textarea 
+                aria-label="Feedback"
+                name="description"
+                autoComplete="off"
                 placeholder="What can we improve?" 
                 className="p-3 rounded-lg text-sm outline-none w-full resize-none h-24"
                 style={{ background: 'var(--surface-2)', color: 'var(--text)', border: '1px solid var(--line)' }}
@@ -280,7 +280,7 @@ export default function Footer() {
                 className="py-3 px-4 rounded-lg text-white text-sm font-bold w-full transition-opacity hover:opacity-90"
                 style={{ background: 'linear-gradient(135deg, var(--accent), var(--accent-2))', opacity: status.loading ? 0.7 : 1 }}
               >
-                {status.loading ? 'Sending...' : 'Submit Feedback'}
+                {status.loading ? 'Sending…' : 'Submit Feedback'}
               </button>
             </form>
           </div>

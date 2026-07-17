@@ -11,7 +11,7 @@ const parseLyrics = (song) => {
   const rawLyrics = song?.lyrics || ''
 
   if (!rawLyrics.trim()) {
-    return [{ time: null, text: 'Lyrics not available for this song.' }]
+    return [{ time: null, text: 'Lyrics not available yet.' }]
   }
 
   return rawLyrics
@@ -28,7 +28,7 @@ const parseLyrics = (song) => {
         const millis = Number(match[3] || 0)
         return {
           time: minutes * 60 + seconds + millis / 1000,
-          text: match[4] || '...',
+          text: match[4] || '…',
         }
       }
 
@@ -76,7 +76,7 @@ export default function Lyrics() {
     <div style={styles.container} className="scrollbar-hidden">
       {currentTrack.coverUrl ? (
         <div style={styles.bgWrapper}>
-          <img src={currentTrack.coverUrl} alt="" style={styles.bgImage} />
+          <img src={currentTrack.coverUrl} alt="" width="1" height="1" decoding="async" style={styles.bgImage} />
           <div style={styles.bgOverlay} />
         </div>
       ) : (

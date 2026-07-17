@@ -4,12 +4,6 @@ import Waveform from './Waveform'
 import { useReducedMotion } from '../lib/animation-utils'
 import useViewport from '../hooks/useViewport'
 
-const SONGS = [
-  { title: 'Midnight Echoes', artist: 'The Neon Dreams', album: 'Synthwave Vol. 3', duration: '3:42', color: 'linear-gradient(140deg, #190e2e, #43316b 60%, #ff5c35)' },
-  { title: 'Summer Stage', artist: 'Priya & The Wave', album: 'Live at Horizon', duration: '4:15', color: 'linear-gradient(140deg, #0f3554, #3f88c5)' },
-  { title: 'Acoustic Sessions', artist: 'Milo Adler', album: 'Unplugged', duration: '2:58', color: 'linear-gradient(140deg, #4b2f18, #b67339)' },
-]
-
 const getInitialPreviewPlaying = () => (
   typeof window === 'undefined' || !window.matchMedia('(prefers-reduced-motion: reduce)').matches
 )
@@ -19,9 +13,8 @@ export default function PlayerMockup() {
   const { isMobile, isTabletOrBelow } = useViewport()
   const previewVideoRef = useRef<HTMLVideoElement | null>(null)
   const [isPreviewPlaying, setIsPreviewPlaying] = useState(getInitialPreviewPlaying)
-  const [currentIdx, setCurrentIdx] = useState(0)
-  const [progress, setProgress] = useState(34)
-  const song = SONGS[currentIdx]
+  const [currentTime, setCurrentTime] = useState(0)
+  const [duration, setDuration] = useState(0)
   const playing = isPreviewPlaying
 
   useEffect(() => {
@@ -42,14 +35,7 @@ export default function PlayerMockup() {
     }
   }, [prefersReducedMotion])
 
-  useEffect(() => {
-    if (!playing) return
-    const t = setInterval(() => setProgress((p) => (p >= 100 ? 0 : p + 0.5)), 300)
-    return () => clearInterval(t)
-  }, [playing])
-
-  const next = () => { setCurrentIdx((i) => (i + 1) % SONGS.length); setProgress(0) }
-  const prev = () => { setCurrentIdx((i) => (i - 1 + SONGS.length) % SONGS.length); setProgress(0) }
+  const progress = duration > 0 ? Math.min((currentTime / duration) * 100, 100) : 0
   const togglePreviewPlayback = () => {
     const video = previewVideoRef.current
     if (!video) return
@@ -86,7 +72,7 @@ export default function PlayerMockup() {
       }}
     >
       {/* Intro video artwork area */}
-      <div className="relative overflow-hidden" style={{ height: isMobile ? 170 : isTabletOrBelow ? 190 : 220, background: song.color }}>
+      <div className="relative overflow-hidden" style={{ height: isMobile ? 170 : isTabletOrBelow ? 190 : 220, background: 'linear-gradient(140deg, #190e2e, #43316b 60%, #ff5c35)' }}>
         <video
           ref={previewVideoRef}
           className="block h-full w-full"
@@ -99,15 +85,18 @@ export default function PlayerMockup() {
           controls={false}
           onPlay={() => setIsPreviewPlaying(true)}
           onPause={() => setIsPreviewPlaying(false)}
+          onTimeUpdate={(event) => setCurrentTime(event.currentTarget.currentTime || 0)}
+          onLoadedMetadata={(event) => setDuration(Number.isFinite(event.currentTarget.duration) ? event.currentTarget.duration : 0)}
+          onError={() => setIsPreviewPlaying(false)}
         >
           <source src="/videos/symponify-intro.mp4" type="video/mp4" />
         </video>
 
         {/* Song info overlay */}
         <div className="absolute inset-0 flex flex-col justify-end p-6" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.45), transparent)' }}>
-          <span className="mb-1 font-mono text-xs tracking-wider uppercase text-white/60">{song.album}</span>
-          <h3 className="text-xl font-bold leading-tight text-white">{song.title}</h3>
-          <p className="text-white/75 text-sm mt-0.5">{song.artist}</p>
+          <span className="mb-1 font-mono text-xs tracking-wider uppercase text-white/60">Product preview</span>
+          <h3 className="text-xl font-bold leading-tight text-white">Meet Symponify</h3>
+          <p className="text-white/75 text-sm mt-0.5">Intro video</p>
         </div>
       </div>
 
@@ -121,7 +110,7 @@ export default function PlayerMockup() {
         {/* Progress bar */}
         <div className="flex items-center gap-3 mb-4">
           <span className="text-xs tabular-nums" style={{ color: 'var(--text-3)', fontFamily: 'var(--mono)' }}>
-            {formatTime((progress / 100) * 222)}
+            {formatTime(currentTime)}
           </span>
           <div
             className="relative flex-1 h-1 overflow-hidden rounded-full cursor-pointer"
@@ -134,16 +123,12 @@ export default function PlayerMockup() {
             />
           </div>
           <span className="text-xs tabular-nums" style={{ color: 'var(--text-3)', fontFamily: 'var(--mono)' }}>
-            {song.duration}
+            {formatTime(duration)}
           </span>
         </div>
 
         {/* Buttons */}
-        <div className="flex items-center justify-between">
-          <button className="p-2 transition-colors rounded-full hover:bg-black/5" onClick={prev} aria-label="Previous">
-            <SkipBackIcon />
-          </button>
-
+        <div className="flex items-center justify-center">
           <motion.button
             whileTap={{ scale: 0.92 }}
             onClick={togglePreviewPlayback}
@@ -153,25 +138,6 @@ export default function PlayerMockup() {
           >
             {playing ? <PauseIcon /> : <PlayIcon />}
           </motion.button>
-
-          <button className="p-2 transition-colors rounded-full hover:bg-black/5" onClick={next} aria-label="Next">
-            <SkipForwardIcon />
-          </button>
-        </div>
-
-        {/* Queue preview */}
-        <div className="flex flex-col gap-2 pt-4 mt-4" style={{ borderTop: '1px solid var(--line)' }}>
-          <p className="mb-1 text-xs font-semibold tracking-wider uppercase" style={{ color: 'var(--text-3)' }}>Up next</p>
-          {SONGS.filter((_, i) => i !== currentIdx).map((s, i) => (
-            <div key={s.title} className="flex items-center gap-3 py-1">
-              <div className="flex-shrink-0 w-8 h-8 rounded-xl" style={{ background: s.color }} />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold truncate" style={{ color: 'var(--text)' }}>{s.title}</p>
-                <p className="text-xs truncate" style={{ color: 'var(--text-3)' }}>{s.artist}</p>
-              </div>
-              <span className="text-xs" style={{ color: 'var(--text-3)', fontFamily: 'var(--mono)' }}>{s.duration}</span>
-            </div>
-          ))}
         </div>
       </div>
     </motion.div>
@@ -189,10 +155,4 @@ function PlayIcon() {
 }
 function PauseIcon() {
   return <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-}
-function SkipBackIcon() {
-  return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg>
-}
-function SkipForwardIcon() {
-  return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
 }

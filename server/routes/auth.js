@@ -5,6 +5,7 @@ const User = require('../models/User')
 const authMiddleware = require('../middleware/authMiddleware')
 const { requireAdmin } = require('../middleware/authMiddleware')
 const { isValidEmail, normalizeEmail, safeTrim } = require('../utils/validation')
+const { sendError } = require('../utils/http')
 
 const FIXED_ADMIN = {
   name: process.env.ADMIN_NAME || 'Symponify Admin',
@@ -98,7 +99,7 @@ router.post('/register', async (req, res) => {
       user: serializeUser(user, false),
     })
   } catch (error) {
-    res.status(error.status || 500).json({ message: error.message || 'Registration failed.' })
+    sendError(res, error, 'Registration failed.')
   }
 })
 
@@ -136,7 +137,7 @@ router.post('/login', async (req, res) => {
       user: serializeUser(user, adminSession),
     })
   } catch (error) {
-    res.status(error.status || 500).json({ message: error.message || 'Login failed.' })
+    sendError(res, error, 'Login failed.')
   }
 })
 
@@ -147,7 +148,7 @@ router.get('/me', authMiddleware, async (req, res) => {
 
     res.json({ user: serializeUser(user) })
   } catch (error) {
-    res.status(500).json({ message: error.message || 'Unable to load the current user.' })
+    sendError(res, error, 'Unable to load the current user.')
   }
 })
 
@@ -178,7 +179,7 @@ router.post('/make-admin', authMiddleware, requireAdmin, async (req, res) => {
       user: serializeUser(user, user.isAdmin),
     })
   } catch (error) {
-    res.status(500).json({ message: error.message || 'Unable to update admin access.' })
+    sendError(res, error, 'Unable to update admin access.')
   }
 })
 
@@ -213,7 +214,7 @@ router.post('/admin-access', async (req, res) => {
       user: serializeUser(user, true),
     })
   } catch (error) {
-    res.status(error.status || 500).json({ message: error.message || 'Admin login failed.' })
+    sendError(res, error, 'Admin login failed.')
   }
 })
 

@@ -8,25 +8,28 @@ const connectDB = require('./config/db')
 
 const path = require('path')
 const app = express()
-connectDB()
 app.set('trust proxy', 1)
 
 const isProduction = process.env.NODE_ENV === 'production'
 
 const normalizeOrigin = (origin = '') => origin.trim().replace(/\/+$/, '')
 
-const allowedOrigins = [
+const configuredOrigins = (process.env.CLIENT_ORIGIN || '')
+  .split(',')
+  .map(normalizeOrigin)
+  .filter(Boolean)
+
+const developmentOrigins = [
   'http://localhost:5173',
   'http://127.0.0.1:5173',
   'http://localhost:4173',
   'http://127.0.0.1:4173',
-  'https://symponify-8tga.vercel.app',
-  'https://symponify.vercel.app',
-  ...(process.env.CLIENT_ORIGIN || '')
-    .split(',')
-    .map(normalizeOrigin)
-    .filter(Boolean),
 ]
+
+const allowedOrigins = new Set([
+  ...configuredOrigins,
+  ...(!isProduction ? developmentOrigins : []),
+])
 
 const publicLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -64,7 +67,7 @@ app.use(
   cors({
     origin: (origin, callback) => {
       const normalizedOrigin = origin ? normalizeOrigin(origin) : ''
-      if (!origin || allowedOrigins.includes(normalizedOrigin)) {
+      if (!origin || allowedOrigins.has(normalizedOrigin)) {
         callback(null, true)
         return
       }
@@ -99,11 +102,18 @@ app.get('/', (_req, res) => {
   res.send('Symponify Backend Running')
 })
 
-// Serve local media fallback for development: /songs/* -> server/public/songs/*
-app.use('/songs', express.static(path.join(__dirname, 'public', 'songs')))
+// Local media is a development/legacy fallback. Production defaults to Cloudinary-only delivery.
+if (!isProduction || process.env.ALLOW_LEGACY_LOCAL_MEDIA === 'true') {
+  app.use('/songs', express.static(path.join(__dirname, 'public', 'songs')))
+}
 
 app.get('/api/health', (_req, res) => {
-  res.json({ ok: true, uptime: process.uptime() })
+  const databaseReady = require('mongoose').connection.readyState === 1
+  res.status(databaseReady ? 200 : 503).json({
+    ok: databaseReady,
+    database: databaseReady ? 'connected' : 'unavailable',
+    uptime: process.uptime(),
+  })
 })
 
 app.post('/api/auth/login', loginLimiter)
@@ -135,6 +145,55 @@ app.use((err, _req, res, _next) => {
 
 const PORT = process.env.PORT || 5000
 
-app.listen(PORT, () => {
-  console.log(`Symponify server running on port ${PORT}`)
-})
+const validateProductionConfig = () => {
+  if (!isProduction) return
+
+  const required = [
+    'MONGO_URI',
+    'JWT_SECRET',
+    'CLIENT_ORIGIN',
+    'CLOUDINARY_CLOUD_NAME',
+    'CLOUDINARY_API_KEY',
+    'CLOUDINARY_API_SECRET',
+    'ADMIN_EMAIL',
+    'ADMIN_PASSWORD',
+  ]
+  const missing = required.filter((name) => !process.env[name])
+  if (missing.length) {
+    throw new Error(`Missing required production environment variables: ${missing.join(', ')}`)
+  }
+
+  if (process.env.JWT_SECRET.length < 32) {
+    throw new Error('JWT_SECRET must be at least 32 characters in production')
+  }
+
+  if (process.env.ADMIN_PASSWORD.length < 12) {
+    throw new Error('ADMIN_PASSWORD must be at least 12 characters in production')
+  }
+}
+
+const startServer = async () => {
+  validateProductionConfig()
+  await connectDB()
+
+  const server = app.listen(PORT, () => {
+    console.log(`Symponify server running on port ${PORT}`)
+  })
+
+  const shutdown = (signal) => {
+    console.log(`${signal} received. Closing HTTP server.`)
+    server.close(() => process.exit(0))
+  }
+
+  process.once('SIGTERM', () => shutdown('SIGTERM'))
+  process.once('SIGINT', () => shutdown('SIGINT'))
+}
+
+if (require.main === module) {
+  startServer().catch((error) => {
+    console.error('Server startup failed:', error.message)
+    process.exit(1)
+  })
+}
+
+module.exports = { app, startServer }

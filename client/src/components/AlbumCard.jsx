@@ -6,10 +6,10 @@ import { useReducedMotion } from '../lib/animation-utils'
 import { SvgIcon } from './IconBadge'
 
 const Icon = ({ name, size = 20, style: extraStyle }) => (
-  <span className="material-symbols-rounded" style={{ fontSize: size, lineHeight: 1, ...extraStyle }}>{name}</span>
+  <SvgIcon name={name} size={size} style={extraStyle} />
 )
 
-export default function AlbumCard({ album, onSelect, active = false, onOpen }) {
+export default function AlbumCard({ album, onSelect, active = false, onOpen, compact = false }) {
   const navigate = useNavigate()
   const { isMobile, isWide } = useViewport()
   const prefersReducedMotion = useReducedMotion()
@@ -41,13 +41,15 @@ export default function AlbumCard({ album, onSelect, active = false, onOpen }) {
       type="button"
       style={{
         ...styles.card,
+        flexDirection: compact ? 'row' : styles.card.flexDirection,
+        alignItems: compact ? 'center' : undefined,
         opacity: active ? 1 : 0.96,
-        padding: isMobile ? '10px' : '14px',
-        gap: isWide ? '0.5rem' : styles.card.gap,
+        padding: compact ? '10px' : isMobile ? '10px' : '14px',
+        gap: compact ? '12px' : isWide ? '0.5rem' : styles.card.gap,
         background: active ? 'var(--surface-elevated)' : 'var(--card-bg)',
         backdropFilter: 'blur(8px)',
         border: '1px solid var(--line)',
-        borderRadius: '24px',
+        borderRadius: compact ? '18px' : '24px',
         boxShadow: active ? '0 16px 34px rgba(255, 85, 0, 0.18)' : 'var(--shadow-soft)',
       }}
       onClick={handleClick}
@@ -55,12 +57,17 @@ export default function AlbumCard({ album, onSelect, active = false, onOpen }) {
       variants={hoverVariants}
       initial="initial"
     >
-      <div style={styles.artContainer}>
+      <div style={{ ...styles.artContainer, width: compact ? '64px' : styles.artContainer.width, height: compact ? '64px' : undefined, aspectRatio: compact ? 'auto' : styles.artContainer.aspectRatio, flexShrink: compact ? 0 : undefined }}>
         <CoverArt
           src={album.coverUrl}
           alt={`${album.title} cover`}
           containerStyle={{
             ...styles.art,
+            width: compact ? '64px' : styles.art.width,
+            height: compact ? '64px' : undefined,
+            aspectRatio: compact ? 'auto' : styles.art.aspectRatio,
+            borderRadius: compact ? '14px' : styles.art.borderRadius,
+            marginBottom: compact ? 0 : styles.art.marginBottom,
             background: album.coverUrl ? 'var(--surface-2)' : album.color || 'linear-gradient(135deg, #333, #666)',
             outline: active ? '3px solid var(--accent)' : 'none',
             fontSize: isMobile ? '34px' : isWide ? '46px' : styles.art.fontSize,
@@ -75,13 +82,22 @@ export default function AlbumCard({ album, onSelect, active = false, onOpen }) {
             hover: { opacity: 1, transition: { duration: 0.2 } }
           }}
         >
-          <div style={styles.playButton}>
-            <Icon name="play_arrow" size={28} />
+          <div style={{ ...styles.playButton, width: compact ? '36px' : styles.playButton.width, height: compact ? '36px' : styles.playButton.height }}>
+            <Icon name="play_arrow" size={compact ? 20 : 28} />
           </div>
         </motion.div>
       </div>
-      <div style={styles.title}>{album.title}</div>
-      <div style={styles.artist}>{album.artist || 'Symponify Radio'}</div>
+      {compact ? (
+        <div style={{ minWidth: 0, flex: 1 }}>
+          <div style={{ ...styles.title, WebkitLineClamp: 1 }}>{album.title}</div>
+          <div style={{ ...styles.artist, WebkitLineClamp: 1 }}>{album.artist || 'Symponify Radio'}</div>
+        </div>
+      ) : (
+        <>
+          <div style={styles.title}>{album.title}</div>
+          <div style={styles.artist}>{album.artist || 'Symponify Radio'}</div>
+        </>
+      )}
     </motion.button>
   )
 }

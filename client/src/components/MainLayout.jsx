@@ -31,7 +31,9 @@ export default function MainLayout() {
       height: isCompact ? 'auto' : '100dvh',
       minHeight: '100dvh',
       overflow: isCompact ? 'visible' : 'hidden',
-      padding: isCompact ? '12px' : 'var(--page-pad)',
+      padding: isCompact
+        ? 'max(12px, env(safe-area-inset-top, 0px)) max(12px, env(safe-area-inset-right, 0px)) 12px max(12px, env(safe-area-inset-left, 0px))'
+        : 'var(--page-pad)',
       width: 'min(100%, var(--page-max))',
       marginInline: 'auto',
       minWidth: 0,
@@ -85,7 +87,11 @@ export default function MainLayout() {
         />
       )}
       <Sidebar isCompact={isCompact} isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-      <div style={layoutStyles.mainPanel}>
+      <div
+        style={layoutStyles.mainPanel}
+        aria-hidden={isCompact && isSidebarOpen ? true : undefined}
+        inert={isCompact && isSidebarOpen ? '' : undefined}
+      >
         <Navbar showMenuButton={isCompact} onMenuToggle={() => setIsSidebarOpen((prev) => !prev)} />
         <motion.div
           style={layoutStyles.content}

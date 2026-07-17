@@ -210,8 +210,11 @@ export default function Search() {
       <div style={{ ...styles.top, gridTemplateColumns: isCompact ? 'minmax(0, 1fr)' : styles.top.gridTemplateColumns, gap: isMobile ? '12px' : styles.top.gap }}>
         <section style={{ ...styles.searchBox, padding: isMobile ? '16px' : styles.searchBox.padding }}>
           <input
+            aria-label="Search songs, albums, and artists"
+            name="search"
+            autoComplete="off"
             style={{ ...styles.searchInput, fontSize: isXs ? '18px' : isMobile ? '20px' : styles.searchInput.fontSize }}
-            placeholder="Search for songs, albums, artists"
+            placeholder="Search for songs, albums, artists…"
             value={search}
             onChange={(event) => updateSearch(event.target.value)}
           />
@@ -248,7 +251,7 @@ export default function Search() {
             </button>
           ) : (
             <div>
-              <h2 style={{ fontSize: isMobile ? '24px' : '28px', marginBottom: '8px' }}>{loading ? 'Loading...' : 'Start typing'}</h2>
+              <h2 style={{ fontSize: isMobile ? '24px' : '28px', marginBottom: '8px' }}>{loading ? 'Loading…' : 'Start typing'}</h2>
               <p style={{ color: 'rgba(255,255,255,0.72)' }}>
                 {loading ? 'Fetching songs and albums for you.' : 'Search your library or discover what matches your mood.'}
               </p>
@@ -281,7 +284,7 @@ export default function Search() {
             <SongRow key={`${song.title}-${index}`} song={song} index={index + 1} onPlay={(selectedSong) => playSong(selectedSong, songs)} />
           ))
         ) : (
-          <div style={styles.empty}>{loading ? 'Loading songs...' : 'No songs matched your search.'}</div>
+          <div style={styles.empty}>{loading ? 'Loading songs…' : 'No songs matched your search.'}</div>
         )}
       </section>
     </motion.div>

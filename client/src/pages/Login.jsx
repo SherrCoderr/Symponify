@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '../context/ToastContext'
 import { authService } from '../lib/services'
+import { getApiErrorMessage } from '../lib/api'
 import useViewport from '../hooks/useViewport'
 
 const styles = {
@@ -172,8 +173,8 @@ const styles = {
   },
 }
 
-export default function Login() {
-  const [tab, setTab] = useState('login')
+export default function Login({ initialTab = 'login' }) {
+  const [tab, setTab] = useState(initialTab)
   const [form, setForm] = useState({ name: '', email: '', password: '' })
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -234,7 +235,7 @@ export default function Login() {
       showSuccess(tab === 'login' ? 'Logged in successfully!' : 'Account created successfully!')
       handleAuthSuccess(data)
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.message || 'Something went wrong'
+      const errorMsg = getApiErrorMessage(err, 'Sign-in failed. Check your details and try again.')
       setError(errorMsg)
       showError(errorMsg)
     } finally {
@@ -269,7 +270,7 @@ export default function Login() {
       showSuccess('Admin access granted!')
       handleAuthSuccess(data, '/add-song')
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.message || 'Invalid admin credentials'
+      const errorMsg = getApiErrorMessage(err, 'Admin sign-in failed. Check your details and try again.')
       setError(errorMsg)
       showError(errorMsg)
     } finally {
@@ -361,18 +362,19 @@ export default function Login() {
 
             {tab === 'signup' ? (
               <div style={styles.field}>
-                <label style={styles.label}>Full Name</label>
-                <input style={{ ...styles.input, padding: isMobile ? '11px 14px' : styles.input.padding }} name="name" placeholder="Your name" value={form.name} onChange={handleChange} autoComplete="name" />
+                <label htmlFor="auth-name" style={styles.label}>Full Name</label>
+                <input id="auth-name" style={{ ...styles.input, padding: isMobile ? '11px 14px' : styles.input.padding }} name="name" placeholder="Your name…" value={form.name} onChange={handleChange} autoComplete="name" />
               </div>
             ) : null}
 
             <div style={styles.field}>
-              <label style={styles.label}>Email</label>
+              <label htmlFor="auth-email" style={styles.label}>Email</label>
               <input
+                id="auth-email"
                 style={{ ...styles.input, padding: isMobile ? '11px 14px' : styles.input.padding }}
                 name="email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder="you@example.com…"
                 value={form.email}
                 onChange={handleChange}
                 autoComplete="email"
@@ -380,12 +382,13 @@ export default function Login() {
             </div>
 
             <div style={styles.field}>
-              <label style={styles.label}>Password</label>
+              <label htmlFor="auth-password" style={styles.label}>Password</label>
               <input
+                id="auth-password"
                 style={{ ...styles.input, padding: isMobile ? '11px 14px' : styles.input.padding }}
                 name="password"
                 type="password"
-                placeholder="........"
+                placeholder="Enter your password…"
                 value={form.password}
                 onChange={handleChange}
                 autoComplete={tab === 'login' ? 'current-password' : 'new-password'}
@@ -395,7 +398,7 @@ export default function Login() {
             {error ? <p style={styles.error}>{error}</p> : null}
 
             <button type="submit" style={{ ...styles.button, padding: isMobile ? '12px 16px' : styles.button.padding }} disabled={submitting || adminSubmitting}>
-              {submitting ? 'Please wait...' : tab === 'login' ? 'Sign In ->' : 'Create Account ->'}
+              {submitting ? 'Please wait…' : tab === 'login' ? 'Sign In →' : 'Create Account →'}
             </button>
             <button type="button" style={{ ...styles.secondaryButton, padding: isMobile ? '11px 16px' : styles.secondaryButton.padding }} onClick={skipToApp} disabled={submitting || adminSubmitting}>
               Skip and Explore

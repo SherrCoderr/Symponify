@@ -1,10 +1,10 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Button } from './ui/button'
 import { useReducedMotion } from '../lib/animation-utils'
-import discoverYourSoundImage from '../assets/onboarding/discover-your-sound.png'
-import browseCuratedPlaylistsImage from '../assets/onboarding/browse-curated-playlists.png'
-import startInstantlyImage from '../assets/onboarding/start-instantly.png'
+import discoverYourSoundImage from '../assets/onboarding/discover-your-sound.webp'
+import browseCuratedPlaylistsImage from '../assets/onboarding/browse-curated-playlists.webp'
+import startInstantlyImage from '../assets/onboarding/start-instantly.webp'
 
 const slides = [
   {
@@ -12,6 +12,8 @@ const slides = [
     title: 'Discover your sound',
     description: 'Explore songs, albums, and playlists in one smooth music experience.',
     image: discoverYourSoundImage,
+    width: 960,
+    height: 536,
     alt: 'A listener using Symponify on a phone while wearing earbuds outdoors.',
   },
   {
@@ -19,6 +21,8 @@ const slides = [
     title: 'Browse curated playlists',
     description: 'Find handpicked mixes, favorites, and collections made for every mood.',
     image: browseCuratedPlaylistsImage,
+    width: 960,
+    height: 524,
     alt: 'A Symponify playlist hub shown on a phone beside a listener with earbuds.',
   },
   {
@@ -26,6 +30,8 @@ const slides = [
     title: 'Start instantly',
     description: 'Create an account or continue as a guest and begin listening right away.',
     image: startInstantlyImage,
+    width: 960,
+    height: 524,
     alt: 'A listener holding up a phone with the Symponify player ready to start.',
   },
 ]
@@ -53,6 +59,23 @@ export default function MobileOnboarding({ onComplete }) {
   const [[index, direction], setSlide] = useState([0, 0])
   const activeSlide = slides[index]
   const isLastSlide = index === slides.length - 1
+
+  useEffect(() => {
+    const preloadRemainingSlides = () => {
+      slides.slice(1).forEach(({ image }) => {
+        const preload = new Image()
+        preload.src = image
+      })
+    }
+
+    if ('requestIdleCallback' in window) {
+      const idleCallback = window.requestIdleCallback(preloadRemainingSlides)
+      return () => window.cancelIdleCallback(idleCallback)
+    }
+
+    const timeout = window.setTimeout(preloadRemainingSlides, 250)
+    return () => window.clearTimeout(timeout)
+  }, [])
 
   const transition = useMemo(
     () => (
@@ -136,6 +159,11 @@ export default function MobileOnboarding({ onComplete }) {
                 <img
                   src={activeSlide.image}
                   alt={activeSlide.alt}
+                  width={activeSlide.width}
+                  height={activeSlide.height}
+                  loading={index === 0 ? 'eager' : 'lazy'}
+                  fetchPriority={index === 0 ? 'high' : 'auto'}
+                  decoding="async"
                   className="w-full rounded-[1.25rem] object-cover object-center"
                   style={{ height: 'clamp(10rem, 31dvh, 15rem)' }}
                   draggable="false"
@@ -172,7 +200,7 @@ export default function MobileOnboarding({ onComplete }) {
               className="flex h-8 w-8 items-center justify-center rounded-full"
             >
               <span
-                className={`block h-2 rounded-full transition-all duration-300 ${
+                className={`block h-2 rounded-full transition-[width,background-color] duration-300 ${
                   slideIndex === index ? 'w-7 bg-[#ff5c35]' : 'w-2 bg-[rgba(31,24,23,0.18)]'
                 }`}
               />

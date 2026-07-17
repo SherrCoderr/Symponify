@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import api from '../lib/api'
+import api, { getApiErrorMessage } from '../lib/api'
 import CoverArt from '../components/CoverArt'
 import Loader from '../components/Loader'
 import { usePlayer } from '../context/PlayerContext'
@@ -10,7 +10,7 @@ import useViewport from '../hooks/useViewport'
 import { SvgIcon } from '../components/IconBadge'
 
 const Icon = ({ name, size = 18, style: extraStyle }) => (
-  <span className="material-symbols-rounded" style={{ fontSize: size, lineHeight: 1, ...extraStyle }}>{name}</span>
+  <SvgIcon name={name} size={size} style={extraStyle} />
 )
 
 const styles = {
@@ -395,7 +395,7 @@ export default function ManageSongs() {
       setEditingSongId('')
       setEditForm(emptyEdit)
     } catch (error) {
-      const errorMsg = error.response?.data?.message || 'Update failed'
+      const errorMsg = getApiErrorMessage(error, 'Song update failed. Please try again.')
       setMessage({ text: errorMsg, type: 'error' })
       showError(errorMsg)
     }
@@ -415,7 +415,7 @@ export default function ManageSongs() {
         cancelEdit()
       }
     } catch (error) {
-      const errorMsg = error.response?.data?.message || 'Delete failed'
+      const errorMsg = getApiErrorMessage(error, 'Song deletion failed. Please try again.')
       setMessage({ text: errorMsg, type: 'error' })
       showError(errorMsg)
     }
@@ -446,7 +446,7 @@ export default function ManageSongs() {
       setMessage({ text: successMsg, type: 'success' })
       showSuccess(successMsg)
     } catch (error) {
-      const errorMsg = error.response?.data?.message || 'Album creation failed'
+      const errorMsg = getApiErrorMessage(error, 'Album creation failed. Please try again.')
       setMessage({ text: errorMsg, type: 'error' })
       showError(errorMsg)
     } finally {
@@ -478,7 +478,7 @@ export default function ManageSongs() {
       await loadData(selectedAlbum)
       setMessage({ text: 'Album cover updated successfully.', type: 'success' })
     } catch (error) {
-      setMessage({ text: error.response?.data?.message || 'Album cover update failed', type: 'error' })
+      setMessage({ text: getApiErrorMessage(error, 'Album cover update failed. Please try again.'), type: 'error' })
     } finally {
       setChangingAlbumCover(false)
       event.target.value = ''
@@ -503,7 +503,7 @@ export default function ManageSongs() {
       await loadData(data.album)
       setMessage({ text: 'Album renamed successfully.', type: 'success' })
     } catch (error) {
-      setMessage({ text: error.response?.data?.message || 'Album rename failed', type: 'error' })
+      setMessage({ text: getApiErrorMessage(error, 'Album rename failed. Please try again.'), type: 'error' })
     }
   }
 
@@ -537,7 +537,7 @@ export default function ManageSongs() {
       await loadData(selectedAlbum)
       setMessage({ text: field === 'audio' ? 'Song audio replaced successfully.' : 'Song cover replaced successfully.', type: 'success' })
     } catch (error) {
-      setMessage({ text: error.response?.data?.message || 'Media update failed', type: 'error' })
+      setMessage({ text: getApiErrorMessage(error, 'Media update failed. Please try again.'), type: 'error' })
     } finally {
       setReplacingSongId('')
       event.target.value = ''
@@ -751,7 +751,7 @@ export default function ManageSongs() {
                           )}
                           <label style={styles.controlButton}>
                             <Icon name="upload" />
-                            {replacingSongId === song._id ? 'Uploading...' : 'Replace Audio'}
+                            {replacingSongId === song._id ? 'Uploading…' : 'Replace Audio'}
                             <input
                               type="file"
                               accept=".mp3,.wav,.ogg,.m4a"
@@ -762,7 +762,7 @@ export default function ManageSongs() {
                           </label>
                           <label style={styles.controlButton}>
                             <Icon name="edit" />
-                            {replacingSongId === song._id ? 'Uploading...' : 'Replace Cover'}
+                            {replacingSongId === song._id ? 'Uploading…' : 'Replace Cover'}
                             <input
                               type="file"
                               accept=".jpg,.jpeg,.png,.webp"

@@ -112,7 +112,8 @@ const fileFilter = (_req, file, cb) => {
 
   if (file.fieldname === 'audio') {
     const allowedAudio = ['.mp3', '.wav', '.ogg', '.m4a']
-    if (allowedAudio.includes(ext)) {
+    const allowedMimeTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/x-wav', 'audio/ogg', 'audio/mp4', 'audio/x-m4a']
+    if (allowedAudio.includes(ext) && allowedMimeTypes.includes(file.mimetype)) {
       cb(null, true)
       return
     }
@@ -122,7 +123,8 @@ const fileFilter = (_req, file, cb) => {
   }
 
   const allowedImages = ['.jpg', '.jpeg', '.png', '.webp']
-  if (allowedImages.includes(ext)) {
+  const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp']
+  if (allowedImages.includes(ext) && allowedMimeTypes.includes(file.mimetype)) {
     cb(null, true)
     return
   }

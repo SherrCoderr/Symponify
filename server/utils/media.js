@@ -6,6 +6,8 @@ const { sanitizeSongTitle } = require('./validation')
  * All new uploads go to Cloudinary, not local filesystem.
  */
 const mediaRoot = path.join(__dirname, '../public/songs')
+const isProduction = process.env.NODE_ENV === 'production'
+const allowLegacyLocalMedia = !isProduction || process.env.ALLOW_LEGACY_LOCAL_MEDIA === 'true'
 
 /**
  * Checks if a URL is a remote URL (Cloudinary, HTTP, HTTPS, etc).
@@ -20,7 +22,7 @@ const isLocalMediaUrl = (value = '') => /^\/?songs\/.+/i.test(String(value).trim
 const isValidMediaUrl = (value = '') => {
   const mediaUrl = String(value || '').trim()
   if (!mediaUrl) return false
-  return isRemoteUrl(mediaUrl) || isLocalMediaUrl(mediaUrl)
+  return isRemoteUrl(mediaUrl) || (allowLegacyLocalMedia && isLocalMediaUrl(mediaUrl))
 }
 
 /**
@@ -78,6 +80,8 @@ const normalizeMediaUrl = (_req, mediaUrl) => {
   // Cloudinary and other HTTPS URLs are passed through as-is
   if (isRemoteUrl(mediaUrl)) return mediaUrl
 
+  if (!allowLegacyLocalMedia) return ''
+
   const relativePath = getMediaRelativePath(mediaUrl)
   if (!relativePath) return mediaUrl || ''
 
@@ -116,6 +120,7 @@ module.exports = {
   getLocalMediaPath,
   getMediaRelativePath,
   isLocalMediaUrl,
+  allowLegacyLocalMedia,
   isValidMediaUrl,
   isRemoteUrl,
   mediaRoot,

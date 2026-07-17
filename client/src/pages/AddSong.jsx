@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { usePlayer } from '../context/PlayerContext'
 import { adminSongsService, albumsService } from '../lib/services'
+import { getApiErrorMessage } from '../lib/api'
 import { useToast } from '../context/ToastContext'
 import useViewport from '../hooks/useViewport'
 import { SvgIcon } from '../components/IconBadge'
@@ -494,7 +495,7 @@ export default function AddSong() {
       setMessage({ text: successMsg, type: 'success' })
       showSuccess(successMsg)
     } catch (error) {
-      const errorMsg = `Upload failed: ${error.response?.data?.message || error.message || 'Unknown error'}`
+      const errorMsg = `Upload failed: ${getApiErrorMessage(error, 'Please check the files and try again.')}`
       setMessage({ text: errorMsg, type: 'error' })
       showError(errorMsg)
     } finally {
@@ -595,7 +596,7 @@ export default function AddSong() {
             >
               <input ref={coverRef} type="file" accept=".jpg,.jpeg,.png,.webp" style={{ display: 'none' }} onChange={pickCover} />
               {coverPreview ? (
-                <img src={coverPreview} alt="cover preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <img src={coverPreview} alt="Cover preview" width="1" height="1" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               ) : (
                 <>
                   <div style={styles.uploadIcon}>COVER</div>
@@ -614,7 +615,7 @@ export default function AddSong() {
 
         {uploading ? (
           <div style={styles.progressWrap}>
-            <div style={styles.progressLabel}>Uploading... {progress}%</div>
+            <div style={styles.progressLabel}>Uploading… {progress}%</div>
             <div style={styles.progressBar}>
               <div style={{ ...styles.progressFill, width: `${progress}%` }} />
             </div>
@@ -730,7 +731,7 @@ export default function AddSong() {
           <label style={styles.label}>Preview</label>
           <div style={{ ...styles.preview, background: form.color, flexDirection: isPhone ? 'column' : 'row', alignItems: isPhone ? 'flex-start' : styles.preview.alignItems }}>
             {coverPreview ? (
-              <img src={coverPreview} alt="cover preview" style={styles.previewImage} />
+              <img src={coverPreview} alt="Cover preview" width="1" height="1" style={styles.previewImage} />
             ) : (
               <span style={styles.previewIcon}>
                 <SvgIcon name="disc" size={28} />
@@ -745,7 +746,7 @@ export default function AddSong() {
 
         <div style={{ ...styles.actions, gridTemplateColumns: isPhone ? 'minmax(0, 1fr)' : styles.actions.gridTemplateColumns }}>
           <button style={{ ...styles.button, opacity: uploading ? 0.6 : 1 }} onClick={submit} disabled={uploading}>
-            {uploading ? `Uploading... ${progress}%` : 'Upload Song'}
+            {uploading ? `Uploading… ${progress}%` : 'Upload Song'}
           </button>
           <button type="button" style={styles.secondaryButton} onClick={resetForm} disabled={uploading}>
             Reset Form

@@ -1,14 +1,11 @@
+import { useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
 import { usePlayer } from '../context/PlayerContext'
 import useViewport from '../hooks/useViewport'
+import { SvgIcon } from './IconBadge'
 
 const Icon = ({ name, size = 20, style: extraStyle }) => (
-  <span
-    className="material-symbols-rounded"
-    style={{ fontSize: size, lineHeight: 1, ...extraStyle }}
-  >
-    {name}
-  </span>
+  <SvgIcon name={name} size={size} style={extraStyle} />
 )
 
 const styles = {
@@ -58,7 +55,7 @@ const styles = {
     borderRadius: '18px',
     color: 'var(--text-2)',
     fontWeight: 600,
-    transition: 'all 0.2s ease',
+    transition: 'color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease',
   },
   adminLink: {
     display: 'flex',
@@ -68,7 +65,7 @@ const styles = {
     borderRadius: '999px',
     color: 'var(--text-2)',
     fontWeight: 700,
-    transition: 'all 0.2s ease',
+    transition: 'color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease',
   },
   cta: {
     marginTop: 'auto',
@@ -134,6 +131,23 @@ export default function Sidebar({ isCompact = false, isOpen = false, onClose }) 
   const { isMobile, isTabletOrBelow, isWide } = useViewport()
   const isGuest = localStorage.getItem('guestAccess') === 'true'
 
+  useEffect(() => {
+    if (!isCompact || !isOpen) return undefined
+
+    const previousOverflow = document.body.style.overflow
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') onClose?.()
+    }
+
+    document.body.style.overflow = 'hidden'
+    window.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      document.body.style.overflow = previousOverflow
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isCompact, isOpen, onClose])
+
   const links = [
     { to: '/home', label: 'Home', iconName: 'home', end: true },
     { to: '/home/search', label: 'Search', iconName: 'search' },
@@ -167,6 +181,8 @@ export default function Sidebar({ isCompact = false, isOpen = false, onClose }) 
     height: isCompact ? 'calc(100dvh - 24px)' : '100%',
     maxHeight: isCompact ? 'calc(100dvh - 24px)' : '100%',
     width: isCompact ? 'min(320px, calc(100dvw - 24px))' : isWide ? '320px' : 'auto',
+    pointerEvents: isCompact && !isOpen ? 'none' : 'auto',
+    overscrollBehavior: 'contain',
   }
 
   const getMainLinkStyle = (isActive) => ({
@@ -187,7 +203,12 @@ export default function Sidebar({ isCompact = false, isOpen = false, onClose }) 
   })
 
   return (
-    <aside style={sidebarStyle} aria-hidden={isCompact ? !isOpen : false}>
+    <aside
+      style={sidebarStyle}
+      aria-hidden={isCompact ? !isOpen : false}
+      aria-label="Primary navigation"
+      inert={isCompact && !isOpen ? '' : undefined}
+    >
       <div style={styles.topRow}>
         <div style={styles.brand}>
           <span style={styles.dot} />

@@ -85,7 +85,7 @@ export default function PricingSection() {
               <motion.button
                 key={label}
                 onClick={() => setAnnual(label === 'Annual')}
-                className="px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 relative"
+                className="px-5 py-2 rounded-full text-sm font-semibold transition-[color,background-color,border-color,box-shadow,transform] duration-200 relative"
                 style={{ color: (label === 'Annual') === annual ? 'var(--text)' : 'var(--text-3)' }}
                 whileTap={{ scale: 0.96 }}
               >

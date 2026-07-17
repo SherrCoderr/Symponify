@@ -15,6 +15,9 @@ export default function CoverArt({ src, alt, fallback, imgStyle, containerStyle 
         <img
           src={src}
           alt={alt}
+          width="1"
+          height="1"
+          decoding="async"
           style={imgStyle}
           loading="lazy"
           onError={() => {

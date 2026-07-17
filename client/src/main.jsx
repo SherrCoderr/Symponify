@@ -6,19 +6,22 @@ import { PlayerProvider } from './context/PlayerContext'
 import { ThemeProvider } from './context/ThemeContext'
 import { ToastProvider } from './context/ToastContext'
 import { ToastContainer } from './components/Toast'
+import { MotionConfig } from 'framer-motion'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
-      <ThemeProvider>
-        <ToastProvider>
-          <PlayerProvider>
-            <App />
-            <ToastContainer />
-          </PlayerProvider>
-        </ToastProvider>
-      </ThemeProvider>
+      <MotionConfig reducedMotion="user">
+        <ThemeProvider>
+          <ToastProvider>
+            <PlayerProvider>
+              <App />
+              <ToastContainer />
+            </PlayerProvider>
+          </ToastProvider>
+        </ThemeProvider>
+      </MotionConfig>
     </BrowserRouter>
   </React.StrictMode>
 )

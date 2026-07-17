@@ -21,7 +21,7 @@ const buttonVariants = {
 export const Button = React.forwardRef(
   ({ className = '', variant = 'default', size = 'md', asMotion = false, ...props }, ref) => {
     const baseStyles =
-      'inline-flex items-center justify-center font-semibold rounded-full transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2'
+      'inline-flex items-center justify-center font-semibold rounded-full transition-[color,background-color,border-color,box-shadow,transform] duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2'
 
     const buttonClass = `${baseStyles} ${buttonVariants.variants[variant] || buttonVariants.variants.default} ${buttonVariants.sizes[size] || buttonVariants.sizes.md} ${className}`
 

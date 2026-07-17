@@ -144,7 +144,7 @@ export default function HowItWorks() {
   }
 
   return (
-    <section id="how-it-works" className="landing-reveal py-28 px-4 relative overflow-hidden">
+    <section id="how-it-works" className="landing-reveal relative overflow-hidden px-4 pb-28 pt-16">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute -left-24 top-10 w-72 h-72 rounded-full" style={{ background: 'radial-gradient(circle, rgba(255,92,53,0.12) 0%, transparent 70%)' }} />
         <div className="absolute right-0 bottom-0 w-96 h-96 rounded-full" style={{ background: 'radial-gradient(circle, rgba(240,165,0,0.08) 0%, transparent 70%)' }} />

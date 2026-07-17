@@ -3,6 +3,7 @@ const Analytics = require('../models/Analytics')
 const Album = require('../models/Album')
 const Song = require('../models/Song')
 const User = require('../models/User')
+const { sendError } = require('../utils/http')
 
 const ANALYTICS_KEY = 'site'
 
@@ -44,7 +45,7 @@ router.post('/visit', async (_req, res) => {
 
     res.status(201).json({ totalVisits: analytics.totalVisits })
   } catch (error) {
-    res.status(500).json({ message: error.message || 'Unable to record visit.' })
+    sendError(res, error, 'Unable to record visit.')
   }
 })
 
@@ -65,7 +66,7 @@ router.get('/stats', async (_req, res) => {
       totalAlbums,
     })
   } catch (error) {
-    res.status(500).json({ message: error.message || 'Unable to load analytics stats.' })
+    sendError(res, error, 'Unable to load analytics stats.')
   }
 })
 

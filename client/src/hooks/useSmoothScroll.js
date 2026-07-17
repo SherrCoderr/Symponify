@@ -44,11 +44,7 @@ export default function useSmoothScroll(rootRef) {
     }
 
     if (prefersReducedMotion) {
-      document.documentElement.style.scrollBehavior = 'smooth'
-      return () => {
-        document.documentElement.style.scrollBehavior = ''
-        context?.revert()
-      }
+      return () => context?.revert()
     }
 
     const lenis = new Lenis({
@@ -88,7 +84,7 @@ export default function useSmoothScroll(rootRef) {
       if (!element) return false
 
       if (prefersReducedMotion || !lenisRef.current) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        element.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' })
       } else {
         lenisRef.current.scrollTo(element, {
           offset: defaultOffset,

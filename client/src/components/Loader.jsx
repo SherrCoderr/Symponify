@@ -20,7 +20,7 @@ export default function Loader({ style }) {
         </div>
       </div>
       <div style={{ marginTop: '24px', fontSize: '14px', fontWeight: 600, color: 'var(--text-2)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-        Loading...
+        Loading…
       </div>
     </div>
   )

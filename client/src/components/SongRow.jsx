@@ -7,7 +7,7 @@ import CoverArt from './CoverArt'
 import { SvgIcon } from './IconBadge'
 
 const Icon = ({ name, size = 18, style: extraStyle, fill = false }) => (
-  <span className="material-symbols-rounded" style={{ fontSize: size, lineHeight: 1, fontVariationSettings: fill ? "'FILL' 1" : "'FILL' 0", ...extraStyle }}>{name}</span>
+  <SvgIcon name={name} size={size} style={extraStyle} fill={fill ? 'currentColor' : 'none'} />
 )
 
 export default function SongRow({ song, index, onPlay }) {

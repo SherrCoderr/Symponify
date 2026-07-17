@@ -35,7 +35,7 @@ export default function Navbar({ onSectionClick }: NavbarProps) {
         className="fixed top-0 left-0 right-0 z-50 flex justify-center px-4 pt-4"
       >
         <nav
-          className="w-full max-w-6xl flex items-center justify-between px-6 py-4 rounded-full transition-all duration-300"
+          className="w-full max-w-6xl flex items-center justify-between px-6 py-4 rounded-full transition-[color,background-color,border-color,box-shadow,transform] duration-300"
           style={{
             background: scrolled ? 'rgba(255,255,255,0.92)' : 'rgba(255,255,255,0.7)',
             backdropFilter: 'blur(20px)',

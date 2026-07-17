@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react'
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { lazy, Suspense, useEffect, useState } from 'react'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import MainLayout from './components/MainLayout'
-import MobileOnboarding from './components/MobileOnboarding'
 import AddSong from './pages/AddSong'
 import Home from './pages/Home'
 import Library from './pages/Library'
@@ -27,6 +26,8 @@ import Privacy from './pages/Privacy'
 import Terms from './pages/Terms'
 import CookiePolicy from './pages/CookiePolicy'
 
+const MobileOnboarding = lazy(() => import('./components/MobileOnboarding'))
+
 const ONBOARDING_STORAGE_KEY = 'symponify_onboarding_seen'
 const MOBILE_ONBOARDING_QUERY = '(max-width: 1023px)'
 
@@ -43,6 +44,7 @@ const getShouldUseMobileOnboarding = () => (
 )
 
 function App() {
+  const location = useLocation()
   const [isLoggedIn, setIsLoggedIn] = useState(Boolean(localStorage.getItem('token')))
   const [isGuest, setIsGuest] = useState(localStorage.getItem('guestAccess') === 'true')
   const [isMobileOnboardingViewport, setIsMobileOnboardingViewport] = useState(getShouldUseMobileOnboarding)
@@ -101,8 +103,14 @@ function App() {
 
   const canAccessApp = isLoggedIn || isGuest
 
-  if (isMobileOnboardingViewport && showOnboarding) {
-    return <MobileOnboarding onComplete={completeOnboarding} />
+  const isLandingRoute = location.pathname === '/'
+
+  if (isLandingRoute && !canAccessApp && isMobileOnboardingViewport && showOnboarding) {
+    return (
+      <Suspense fallback={<main className="min-h-dvh bg-[#faf8f5]" aria-label="Loading onboarding" />}>
+        <MobileOnboarding onComplete={completeOnboarding} />
+      </Suspense>
+    )
   }
 
   return (
@@ -129,6 +137,7 @@ function App() {
 
       {/* Auth */}
       <Route path="/login" element={canAccessApp ? <Navigate to="/home" replace /> : <Login />} />
+      <Route path="/signup" element={canAccessApp ? <Navigate to="/home" replace /> : <Login initialTab="signup" />} />
 
       {/* App routes */}
       {canAccessApp ? (

@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import NavLan from '../landingcomponents/NavLan'
 import HeroSection from '../landingcomponents/Herosection'
-import IntroVideo from '../landingcomponents/IntroVideo'
 import FeaturesSection from '../landingcomponents/Featuresection'
 import HowItWorks from '../landingcomponents/Howitworks'
 import CtaSection from '../landingcomponents/Ctasection'
@@ -65,7 +64,6 @@ export default function LanApp() {
       <GsapAmbient variant="landing" />
       <NavLan onSectionClick={scrollToSection} />
       <HeroSection analyticsStats={analyticsStats} analyticsLoading={analyticsLoading} />
-      <IntroVideo />
       <FeaturesSection />
       <HowItWorks />
       <CtaSection />

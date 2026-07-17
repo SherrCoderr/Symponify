@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import useViewport from '../hooks/useViewport'
 import { useTheme } from '../context/ThemeContext'
+import { SvgIcon } from './IconBadge'
 
 const Icon = ({ name, size = 20, style: extraStyle }) => (
-  <span className="material-symbols-rounded" style={{ fontSize: size, lineHeight: 1, ...extraStyle }}>{name}</span>
+  <SvgIcon name={name} size={size} style={extraStyle} />
 )
 
 const styles = {
