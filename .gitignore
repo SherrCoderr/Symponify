@@ -1,33 +1,76 @@
-node_modules/
-client/node_modules/
-server/node_modules/
+\<div align="center">
 
-dist/
-build/
-coverage/
-client/dist/
+# 🎵 Symponify
 
-.env
-.env.*
-!.env.example
+### A Modern Music Streaming Web Application Built with the MERN Stack
 
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
+**Submitted by: Sameer**
+B.Tech – Computer Science & Engineering
+Chandigarh University
 
-client-dev.log
-client-dev.err.log
-server-dev.log
-server-dev.err.log
+\<p>
+&#x20; \<img src="[https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge\&logo=react\&logoColor=black)" />
+&#x20; \<img src="[https://img.shields.io/badge/Node.js-Express-339933?style=for-the-badge&logo=node.js&logoColor=white](https://img.shields.io/badge/Node.js-Express-339933?style=for-the-badge\&logo=node.js\&logoColor=white)" />
+&#x20; \<img src="[https://img.shields.io/badge/MongoDB-Database-47A248?style=for-the-badge&logo=mongodb&logoColor=white](https://img.shields.io/badge/MongoDB-Database-47A248?style=for-the-badge\&logo=mongodb\&logoColor=white)" />
+&#x20; \<img src="[https://img.shields.io/badge/Cloudinary-Media-3448C5?style=for-the-badge&logo=cloudinary&logoColor=white](https://img.shields.io/badge/Cloudinary-Media-3448C5?style=for-the-badge\&logo=cloudinary\&logoColor=white)" />
+\</p>
 
-.DS_Store
-Thumbs.db
-desktop.ini
+\<p>
+&#x20; \<a href="[https://symponify.vercel.app/](https://symponify.vercel.app/)">\<b>Live Demo\</b>\</a>
+\</p>
 
-.vscode/
-.idea/
+\</div>
 
-*.tmp
-*.temp
+---
+
+## 📌 About
+
+**Symponify** is a full-stack music streaming platform where users can explore songs, play music, search tracks, like songs, create playlists, and manage their music library.
+
+It also includes an admin panel for uploading and managing songs with Cloudinary media storage.
+
+## ✨ Features
+
+- Stream songs with a custom music player.
+- Search songs by title, artist, or album.
+- Like and save favorite songs.
+- Create and manage playlists.
+- Browse albums and music library.
+- User authentication with JWT.
+- Admin dashboard for song management.
+- Upload songs and covers using Cloudinary.
+- Responsive and modern user interface.
+
+## 🛠️ Tech Stack
+
+| Frontend      | Backend            | Database & Storage |
+| ------------- | ------------------ | ------------------ |
+| React.js      | Node.js            | MongoDB            |
+| Vite          | Express.js         | Mongoose           |
+| Tailwind CSS  | JWT Authentication | Cloudinary         |
+| Framer Motion | Multer             | Render / Vercel    |
+
+## 👨‍💻 Project Information
+
+**Submitted By:** Sameer Saini
+**University:** Chandigarh University
+**Degree:** Bachelor of Technology (B.Tech)
+**Department:** Computer Science and Engineering
+**Project Type:** Full Stack Web Development
+**Technology:** MERN Stack
+
+## 🙏 Original Project Acknowledgement
+
+This project is based on the original Symponify repository by Aayush60-del.
+
+Original Repository: [https://github.com/Aayush60-del/Symponify](https://github.com/Aayush60-del/Symponify)
+
+Credit is retained for the original implementation and project work.
+
+---
+
+\<div align="center">
+
+**Symponify – Your Music, Your Vibe 🎧**
+
+\</div>
